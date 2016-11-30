@@ -1,8 +1,10 @@
 ## Recommend Configuration
 ### Xorg
-Set SLCK as Comose.
+Set Pause as Comose.
 
-### IME
+### Input Method
 Set Kana as 全角半角.
+
 l ん
+
 c か行
