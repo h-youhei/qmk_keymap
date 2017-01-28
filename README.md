@@ -13,6 +13,8 @@ Bottom Right is Number or Function layer pressed with different hand.
 
 Top Right is Japanese consonants and vowels for '行段入力'.
 
+Front is modifier or layer when long-press.
+
 
 Clear key resets modifier or layer states.
 
@@ -34,7 +36,7 @@ Sticky key is oneshot shift modifier.
 ||ア段|イ段|ウ段|エ段|オ段|ヤ段|ユ段|ヨ段|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |**母音**|ァ|ィ|ゥ|ェ|ォ|ャ|ュ|ョ|
-|**カ行**|クァ|クィ||クェ|クォ||||
+|**カ行**|ヶ|クィ||クェ|クォ||||
 |**サ行**||||シェ|||||
 |**タ行**|ツァ|ティ|トゥ|チェ|ツォ||テュ||
 |**ハ行**|ファ|フィ||フェ|フォ||フュ||
