@@ -35,7 +35,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// right hand
 		KC_NO, KC_NO, KC_BSPC, KC_DEL, KC_INS, KC_NO, KC_NO,
 		KC_TAB, KC_W, KC_C, KC_O, KC_U, KC_Z, KC_NO,
-		KC_P, GUI_T(KC_S), ALT_T(KC_E), CTL_T(KC_A), KC_QUOT, KC_X,
+		KC_P, GUI_T(KC_S), ALT_T(KC_E), CTL_T(KC_A), KC_X, KC_QUOT,
 		KC_NO, KC_G, KC_D, KC_COMM, KC_DOT, KC_EQL, KC_SCLN,
 		KC_RGUI, KC_RALT, KC_RCTL, KC_RSFT, KC_NO,
 		// thumb
@@ -141,6 +141,8 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
 		case 0:
 			if(record->event.pressed) {
 				layer_clear();
+				clear_mods();
+				clear_oneshot_mods();
 			}
 			break;
 	}
