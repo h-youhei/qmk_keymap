@@ -3,7 +3,4 @@
 
 #include "../../config.h"
 
-//#define NO_ACTION_ONESHOT
-#define NO_ACTION_FUNCTION
-
 #endif
