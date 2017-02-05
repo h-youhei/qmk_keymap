@@ -23,47 +23,30 @@ enum Layer {
 #define FN_T(kc) LT(L_FUNCTION, kc)
 #define CLCK_T(kc) LT(L_CLICK, kc)
 
+// click (left, middle, right)
+#define KC_LCLK KC_BTN1
+#define KC_MCLK KC_BTN3
+#define KC_RCLK KC_BTN2
+
 // tapping mod with special key
-#define TRNS_T_LCLCK KC_FN1
-#define TRNS_T_MCLCK KC_FN2
-#define TRNS_T_RCLCK KC_FN3
-#define TRNS_T_LPRN KC_FN4
-#define TRNS_T_RPRN KC_FN5
-#define TRNS_T_LALT KC_FN6
+#define TRNS_T_MCLK KC_FN1
+#define TRNS_T_RCLK KC_FN2
+#define TRNS_T_LPRN KC_FN3
+
+bool is_tap(keyrecord_t *record) {
+	return (record->tap.count <= 0 || record->tap.interrupted);
+}
 
 const macro_t *tap_mod_macro(keyrecord_t *record, uint8_t mod, const macro_t *macro) {
 	if (record->event.pressed) {
-		// not tap
-		if (record->tap.count <= 0 || record->tap.interrupted) {
+		if (is_tap(record)) {
 			register_mods(mod);
 		}
 	}
 	else {
-		// not tap
-		if (record->tap.count <= 0 || record->tap.interrupted) {
+		if (is_tap(record)) {
 			unregister_mods(mod);
 		}
-		// tap
-		else {
-			return macro;
-		}
-	}
-	return MACRO_NONE;
-};
-
-const macro_t *tap_layer_macro(keyrecord_t *record, uint8_t layer, const macro_t *macro) {
-	if (record->event.pressed) {
-		// not tap
-		if (record->tap.count <= 0 || record->tap.interrupted) {
-			layer_on(layer);
-		}
-	}
-	else {
-		// not tap
-		if (record->tap.count <= 0 || record->tap.interrupted) {
-			layer_off(layer);
-		}
-		// tap
 		else {
 			return macro;
 		}
@@ -80,41 +63,54 @@ void tap_mousekey(uint8_t mouse) {
 
 void tap_mod_mouse(keyrecord_t *record, uint8_t mod, uint8_t mouse) {
 	if (record->event.pressed) {
-		//  not tap
-		if (record->tap.count <= 0 || record->tap.interrupted) {
+		if (is_tap(record)) {
 			register_mods(mod);
 		}
 	}
 	else {
-		//  not tap
-		if (record->tap.count <= 0 || record->tap.interrupted) {
+		if (is_tap(record)) {
 			unregister_mods(mod);
 		}
-		// tap
 		else {
 			tap_mousekey(mouse);
 		}
 	}
 };
 
-void tap_layer_mouse(keyrecord_t *record, uint8_t layer, uint8_t mouse) {
+/*
+const macro_t *tap_layer_macro(keyrecord_t *record, uint8_t layer, const macro_t *macro) {
 	if (record->event.pressed) {
-		// not tap
-		if (record->tap.count <= 0 || record->tap.interrupted) {
+		if (is_tap(record)) {
 			layer_on(layer);
 		}
 	}
 	else {
-		// not tap
-		if (record->tap.count <= 0 || record->tap.interrupted) {
+		if (is_tap(record)) {
 			layer_off(layer);
 		}
-		// tap
+		else {
+			return macro;
+		}
+	}
+	return MACRO_NONE;
+};
+
+void tap_layer_mouse(keyrecord_t *record, uint8_t layer, uint8_t mouse) {
+	if (record->event.pressed) {
+		if (is_tap(record)) {
+			layer_on(layer);
+		}
+	}
+	else {
+		if (is_tap(record)) {
+			layer_off(layer);
+		}
 		else {
 			tap_mousekey(mouse);
 		}
 	}
 };
+*/
 
 void action_function(keyrecord_t *record, uint8_t id, uint8_t opt) {
 	switch(id) {
@@ -126,13 +122,10 @@ void action_function(keyrecord_t *record, uint8_t id, uint8_t opt) {
 			}
 			break;
 		case 1:
-			tap_layer_mouse(record, L_CLICK, KC_BTN1);
+			tap_mod_mouse(record, MOD_LGUI, KC_MCLK);
 			break;
 		case 2:
-			tap_mod_mouse(record, MOD_LGUI, KC_BTN3);
-			break;
-		case 3:
-			tap_mod_mouse(record, MOD_LALT, KC_BTN2);
+			tap_mod_mouse(record, MOD_LALT, KC_RCLK);
 			break;
 		default:
 			break;
@@ -143,10 +136,7 @@ const uint16_t PROGMEM fn_actions[] = {
 	[0] = ACTION_FUNCTION(0),
 	[1] = ACTION_FUNCTION_TAP(1),
 	[2] = ACTION_FUNCTION_TAP(2),
-	[3] = ACTION_FUNCTION_TAP(3),
-	[4] = ACTION_MACRO_TAP(0),
-	[5] = ACTION_MACRO_TAP(1),
-	[6] = ACTION_MACRO_TAP(2),
+	[3] = ACTION_MACRO_TAP(0),
 };
 
 const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
@@ -154,11 +144,6 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
 		case 0:
 			return tap_mod_macro(record, MOD_LSFT, MACRO(D(LSFT), T(9), U(LSFT), END));
 			break;
-		case 1:
-			return tap_layer_macro(record, L_CLICK, MACRO(D(LSFT), T(0), U(LSFT), END));
-			break;
-		case 2:
-			return tap_layer_macro(record, L_CLICK, MACRO(D(LALT), T(NO), U(LALT), END));
 		default:
 			break;
 	}
