@@ -1,0 +1,64 @@
+status	key	command
+Precomposition	Backspace	Revert
+Precomposition	Ctrl Backspace	Undo
+Precomposition	Muhenkan	ToggleAlphanumericMode
+Precomposition	Henkan	InputModeFullKatakana
+Precomposition	Shift Henkan	InputModeHiragana
+Precomposition	Ctrl Henkan	Reconvert
+Precomposition	Space	InsertSpace
+Precomposition	Shift Space	InsertAlternateSpace
+Precomposition	Ctrl Space	InsertSpace
+Precomposition	Ctrl Shift Space	InsertAlternateSpace
+Precomposition	Ctrl w	LaunchWordRegisterDialog
+Precomposition	Ctrl c	LaunchConfigDialog
+Precomposition	Ctrl d	LaunchDictionaryTool
+Composition	Backspace	Backspace
+Composition	Delete	Delete
+Composition	Escape	Cancel
+Composition	Left	MoveCursorLeft
+Composition	Right	MoveCursorRight
+Composition	Home	MoveCursorToBeginning
+Composition	End	MoveCursorToEnd
+Composition	Ctrl Space	InsertSpace
+Composition	Ctrl Shift Space	InsertAlternateSpace
+Composition	Henkan	InputModeFullKatakana
+Composition	Shift Henkan	InputModeHiragana
+Composition	Katakana	SwitchKanaType
+Composition	Muhenkan	ToggleAlphanumericMode
+Composition	Shift Muhenkan	ConvertToHalfAlphanumeric
+Composition	Space	Convert
+Suggestion	Shift Space	PredictAndConvert
+Composition	Enter	Commit
+Suggestion	Tab	CommitFirstSuggestion
+Prediction	Ctrl Delete	DeleteSelectedCandidate
+Conversion	Backspace	Cancel
+Conversion	Delete	Cancel
+Conversion	Escape	Cancel
+Conversion	Down	SegmentWidthShrink
+Conversion	Up	SegmentWidthExpand
+Conversion	Left	SegmentFocusLeft
+Conversion	Right	SegmentFocusRight
+Conversion	Home	SegmentFocusFirst
+Conversion	End	SegmentFocusLast
+Conversion	Ctrl Space	InsertSpace
+Conversion	Ctrl Shift Space	InsertAlternateSpace
+Conversion	Tab	CommitOnlyFirstSegment
+Conversion	Enter	Commit
+Conversion	Henkan	InputModeFullKatakana
+Conversion	Shift Henkan	InputModeHiragana
+Conversion	Katakana	SwitchKanaType
+Conversion	Muhenkan	ToggleAlphanumericMode
+Conversion	Shift Muhenkan	ConvertToFullAlphanumeric
+Conversion	Space	ConvertNext
+Conversion	Shift Space	ConvertPrev
+Conversion	PageDown	ConvertNextPage
+Conversion	PageUp	ConvertPrevPage
+Composition	ASCII	InsertCharacter
+Composition	OFF	IMEOff
+Composition	ON	IMEOn
+Conversion	OFF	IMEOff
+Conversion	ON	IMEOn
+DirectInput	ON	IMEOn
+Precomposition	ASCII	InsertCharacter
+Precomposition	OFF	IMEOff
+Precomposition	ON	IMEOn
