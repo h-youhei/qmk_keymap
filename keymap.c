@@ -5,7 +5,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// left hand
 		KC_PSCR, KC_NO, KC_SCLN, KC_LBRC, KC_RBRC, KC_MPLY, KC_MUTE,
 		RALT(KC_NO), KC_X, KC_C, KC_L, KC_M, KC_F, KC_TAB,
-		KC_V, CTL_T(KC_B), ALT_T(KC_S), GUI_T(KC_T), ARRW_T(KC_R), NUM_T(KC_H),
+		KC_V, ALT_T(KC_B), CTL_T(KC_S), GUI_T(KC_T), ARRW_T(KC_R), NUM_T(KC_H),
 		KC_GRV, KC_Q, KC_D, KC_G, KC_N, KC_J, KC_NO,
 		KC_NO, KC_NO, KC_NO, KC_NO, KC_HENK,
 		// thumb
@@ -15,7 +15,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// right hand
 		KC_VOLD, KC_VOLU, KC_BSPC, KC_DEL, KC_INS, KC_NO, KC_PAUS,
 		KC_ESC, KC_Y, KC_U, KC_O, KC_P, KC_Z, RALT(KC_NO),
-		FN_T(KC_W), SYMB_T(KC_E), GUI_T(KC_A), ALT_T(KC_I), CTL_T(KC_K), KC_QUOT,
+		FN_T(KC_W), SYMB_T(KC_E), GUI_T(KC_A), CTL_T(KC_I), ALT_T(KC_K), KC_QUOT,
 		KC_NO, KC_EQL, KC_COMM, KC_DOT, KC_MINS, KC_SLSH, KC_BSLS,
 		KC_KANA, KC_NO, KC_NO, KC_NO, KC_NO,
 		// thumb

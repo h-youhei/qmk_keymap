@@ -125,7 +125,7 @@ void action_function(keyrecord_t *record, uint8_t id, uint8_t opt) {
 			tap_mod_mouse(record, MOD_LGUI, KC_MCLK);
 			break;
 		case 2:
-			tap_mod_mouse(record, MOD_LALT, KC_RCLK);
+			tap_mod_mouse(record, MOD_LCTL, KC_RCLK);
 			break;
 		default:
 			break;
