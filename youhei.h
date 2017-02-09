@@ -31,7 +31,7 @@ enum Layer {
 // tapping mod with special key
 #define TRNS_T_MCLK KC_FN1
 #define TRNS_T_RCLK KC_FN2
-#define TRNS_T_LPRN KC_FN3
+#define TRNS_T_RPRN KC_FN3
 
 bool is_tap(keyrecord_t *record) {
 	return (record->tap.count <= 0 || record->tap.interrupted);
@@ -142,7 +142,7 @@ const uint16_t PROGMEM fn_actions[] = {
 const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
 	switch(id) {
 		case 0:
-			return tap_mod_macro(record, MOD_LSFT, MACRO(D(LSFT), T(9), U(LSFT), END));
+			return tap_mod_macro(record, MOD_LSFT, MACRO(D(LSFT), T(0), U(LSFT), END));
 			break;
 		default:
 			break;

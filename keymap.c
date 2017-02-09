@@ -43,7 +43,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_NO, KC_NO,
 		KC_NO,
-		KC_NO, KC_NO, KC_TRNS
+		KC_NO, KC_CAPS, KC_TRNS
 	),
 	[L_ARROW] = KEYMAP(
 		// left hand
@@ -55,9 +55,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_NO, KC_NO,
 		KC_NO,
-		SFT_T(KC_APP), LALT(KC_NO), KC_NO,
+		KC_TRNS, KC_TRNS, KC_NO,
 		// right hand
-		KC_NO, KC_NO, KC_TRNS, KC_TRNS, KC_TRNS, KC_NO, RESET,
+		KC_NO, KC_NO, KC_TRNS, KC_TRNS, KC_NO, KC_NO, RESET,
 		KC_TRNS, KC_HOME, KC_PGDN, KC_PGUP, KC_END, KC_NO, KC_NO,
 		KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_SLCK, KC_NO,
 		KC_NO, KC_WH_L, KC_WH_D, KC_WH_U, KC_WH_R, KC_NO, KC_NO,
@@ -65,7 +65,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_NO, KC_NO,
 		KC_NO,
-		KC_NO, KC_NO, KC_TRNS
+		KC_TRNS, LALT(KC_NO), SFT_T(KC_APP)
 	),
 	[L_NUM] = KEYMAP(
 		// left hand
@@ -77,7 +77,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_NO, KC_NO,
 		KC_NO,
-		TRNS_T_LPRN, KC_RPRN, KC_NO,
+		KC_TRNS, KC_TRNS, KC_NO,
 		// right hand
 		KC_NO, KC_NO, KC_7, KC_8, KC_9, KC_NO, RESET,
 		KC_TRNS, KC_CIRC, KC_4, KC_5, KC_6, KC_ASTR, KC_CALC,
@@ -87,7 +87,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_NO, KC_NO,
 		KC_NO,
-		KC_NO, KC_NO, KC_TRNS
+		KC_TRNS, KC_LPRN, TRNS_T_RPRN
 	),
 	[L_FUNCTION] = KEYMAP(
 		// left hand
@@ -99,7 +99,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_NO, KC_NO,
 		KC_NO,
-		KC_TRNS, KC_NO, KC_NO,
+		KC_TRNS, KC_ENT, KC_NO,
 		// right hand
 		KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, RESET,
 		KC_TRNS, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
@@ -109,7 +109,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_NO, KC_NO,
 		KC_NO,
-		KC_NO, KC_NO, KC_TRNS
+		KC_NO, KC_CAPS, KC_TRNS
 	),
 	[L_CLICK] = KEYMAP(
 		// left hand
