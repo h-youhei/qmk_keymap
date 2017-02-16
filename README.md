@@ -24,12 +24,12 @@ IM key is used for toggle Input Method. Internally, it's assigned to Henkan key.
 Cmps key is Compose key. Internaly, it's assigned to R-Alt key.
 
 ## Compose key
-[This](https://github/h-youhei/myconfig/tree/master/etc/X11/xorg.conf.70-keyboard.conf) is the config file.
+[This](https://github.com/h-youhei/myconfig/tree/master/etc/X11/xorg.conf.d/70-keyboard.conf) is the config file.
 
 Put it in /etc/X11/xorg.conf.d .
 
 ## Japanese Input 日本語入力
-[ここ](https://github/h-youhei/myconfig/tree/master/init/mozc)に、設定ファイルがあります。mozcの設定ダイアログを開いて、インポートしてください。
+[ここ](https://github.com/h-youhei/myconfig/tree/master/init/mozc)に、設定ファイルがあります。mozcの設定ダイアログを開いて、インポートしてください。
 
 keymap.txt には、変換や確定などの操作が定義されています。
 
@@ -37,7 +37,7 @@ kana-table.txt, gyoudan-table.txt には、それぞれかな入力、行段入�
 
 ### かな入力
 ![kana-layout](img/kana-layout.png)
-ローマ字テーブルで実装している都合上、濁音・半濁音は、前置キーとなります。
+ローマ字テーブルで実装している都合上、濁音・半濁音は前置キーとなります。
 
 ### 行段入力
 ![gyoudan-layout](img/gyoudan-layout.png)
