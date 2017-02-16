@@ -11,9 +11,8 @@ enum Layer {
 	L_NUMBER,
 	L_FUNCTION,
 };
-
+/*
 enum Macro {
-	M_SFT_T_LPRN,
 };
 
 enum Function {
@@ -21,16 +20,15 @@ enum Function {
 };
 
 enum Action {
-	A_SFT_T_LPRN,
 	A_GUI_T_MCLK,
 };
-
+*/
 enum Keycode_User {
 	CLEAR = SAFE_RANGE,
 };
 
 // oneshot modifier
-#define SFT_OS OSM(MOD_LSFT)
+#define OS_SFT OSM(MOD_LSFT)
 
 // tapping Layer
 #define SIGN_T(kc) LT(L_SIGN,kc)
@@ -43,14 +41,20 @@ enum Keycode_User {
 #define KC_MCLK KC_BTN3
 #define KC_RCLK KC_BTN2
 
-// tapping key with shift
-#define SFT_T_LPRN F(A_SFT_T_LPRN)
-#define GUI_T_MCLK F(A_GUI_T_MCLK)
+// aliases more meaningful for me
+#define KC_MULTI RALT(KC_NO)
+#define KC_CMPS KC_MULTI
+#define KC_TOGGLE_INPUT_METHOD KC_HENK
+#define KC_TGIM KC_TOGGLE_INPUT_METHOD
+
+// tapping key with special key
+//#define GUI_T_MCLK F(A_GUI_T_MCLK)
 
 bool is_hold(keyrecord_t *record) {
 	return (record->tap.count <= 0 || record->tap.interrupted);
 }
 
+/*
 const macro_t *tap_macro_hold_mod(keyrecord_t *record, uint8_t mod, const macro_t *macro) {
 	if (record->event.pressed) {
 		if (is_hold(record)) {
@@ -92,7 +96,7 @@ void tap_mouse_hold_mod(keyrecord_t *record, uint8_t mod, uint8_t mouse) {
 	}
 };
 
-/*
+
 const macro_t *tap_macro_hold_layer(keyrecord_t *record, uint8_t layer, const macro_t *macro) {
 	if (record->event.pressed) {
 		if (is_hold(record)) {
@@ -129,24 +133,22 @@ void tap_mouse_hold_layer(keyrecord_t *record, uint8_t layer, uint8_t mouse) {
 
 void action_function(keyrecord_t *record, uint8_t id, uint8_t opt) {
 	switch(id) {
+		/*
 		case F_GUI_T_MCLK:
 			tap_mouse_hold_mod(record, MOD_LGUI, KC_MCLK);
 			break;
+		*/
 		default:
 			break;
 	}
 };
 
 const uint16_t PROGMEM fn_actions[] = {
-	[A_SFT_T_LPRN] = ACTION_MACRO_TAP(M_SFT_T_LPRN),
-	[A_GUI_T_MCLK] = ACTION_FUNCTION_TAP(F_GUI_T_MCLK),
+	//[A_GUI_T_MCLK] = ACTION_FUNCTION_TAP(F_GUI_T_MCLK),
 };
 
 const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
 	switch(id) {
-		case M_SFT_T_LPRN:
-			return tap_macro_hold_mod(record, MOD_LSFT, MACRO(D(LSFT), T(9), U(LSFT), END));
-			break;
 		default:
 			break;
 	}
