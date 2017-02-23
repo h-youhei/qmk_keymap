@@ -1,5 +1,5 @@
 # Youhei's keymap
-English|[日本語](Readme.ja.md)
+English|[日本語](README.ja.md)
 
 ![layout](img/layout.png)
 
@@ -33,4 +33,4 @@ Internaly, it's assigned to R-Alt key.
 Put it in /etc/X11/xorg.conf.d .
 
 ## Japanese Input
-see [Japanese Readme](Readme.ja.md)
+see [Japanese Readme](README.ja.md)

@@ -1,5 +1,5 @@
 # Youhei配列
-[English](Readme.md)|日本語
+[English](README.md)|日本語
 
 ![layout](img/layout.png)
 
