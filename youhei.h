@@ -6,13 +6,17 @@
 
 enum Layer {
 	L_BASE,
+	L_LREPEAT,
+	L_RREPEAT,
 	L_SIGN,
 	L_DIRECTION,
 	L_NUMBER,
 	L_FUNCTION,
 };
+
 /*
 enum Macro {
+	M_NONE,
 };
 
 enum Function {
@@ -23,6 +27,7 @@ enum Action {
 	A_GUI_T_MCLK,
 };
 */
+
 enum Keycode_User {
 	CLEAR = SAFE_RANGE,
 };
@@ -35,6 +40,8 @@ enum Keycode_User {
 #define DIR_T(kc) LT(L_DIRECTION, kc)
 #define NUM_T(kc) LT(L_NUMBER, kc)
 #define FN_T(kc) LT(L_FUNCTION, kc)
+#define LRPT_T(kc) LT(L_LREPEAT, kc)
+#define RRPT_T(kc) LT(L_RREPEAT, kc)
 
 // click (left, middle, right)
 #define KC_LCLK KC_BTN1
@@ -50,11 +57,11 @@ enum Keycode_User {
 // tapping key with special key
 //#define GUI_T_MCLK F(A_GUI_T_MCLK)
 
+/*
 bool is_hold(keyrecord_t *record) {
 	return (record->tap.count <= 0 || record->tap.interrupted);
 }
 
-/*
 const macro_t *tap_macro_hold_mod(keyrecord_t *record, uint8_t mod, const macro_t *macro) {
 	if (record->event.pressed) {
 		if (is_hold(record)) {
@@ -71,7 +78,6 @@ const macro_t *tap_macro_hold_mod(keyrecord_t *record, uint8_t mod, const macro_
 	}
 	return MACRO_NONE;
 };
-
 
 void tap_mousekey(uint8_t mouse) {
 	mousekey_on(mouse);
@@ -95,7 +101,6 @@ void tap_mouse_hold_mod(keyrecord_t *record, uint8_t mod, uint8_t mouse) {
 		}
 	}
 };
-
 
 const macro_t *tap_macro_hold_layer(keyrecord_t *record, uint8_t layer, const macro_t *macro) {
 	if (record->event.pressed) {

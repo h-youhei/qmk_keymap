@@ -17,13 +17,20 @@ Each key legend on
 
 Clear key resets modifier or layer states.
 
-Reset key can be used instead of reset button. The key is used for overwrite firmware. If you pressed the key, the keyboard is freezed. When it happned, plug out the cable then plug it in.
+Reset key can be used instead of reset button. The key is used for overwrite firmware.  If you pressed the key, the keyboard is freezed. When it happned, plug out the cable then plug it in.
 
-IM key is used for toggle Input Method. Internally, it's assigned to Henkan key.
+IME key is used for toggle Input Method. Internally, it's assigned to Henkan key.
 
 Cmps key is Compose key. Internaly, it's assigned to R-Alt key.
 
-## Compose key
+Repeat layer offers a way to repeat Dual role keys.  Hold with different hand.
+
+## Click keys
+Modifier keys in bottom both side is for pressing it with click keys by one hand.
+
+That is useful when to move cursor with mouse or other pointing device by the other hand.
+
+## [Compose key](https://en.wikipedia.org/wiki/Compose_key)
 [This](https://github.com/h-youhei/myconfig/tree/master/etc/X11/xorg.conf.d/70-keyboard.conf) is the config file.
 
 Put it in /etc/X11/xorg.conf.d .
@@ -49,7 +56,7 @@ kana-table.txt, gyoudan-table.txt には、それぞれかな入力、行段入�
 
 母音をシフトすると、母音の後に「ん」が追加されます。
 
-小文字キーをシフトすると「ん」が、連続入力すると「っ」が入力できます。
+小文字キーを連続入力すると、「っ」単体を入力できます。
 
 |あ|い|う|え|お|や|ゆ|いぇ|よ|わ|ゐ|ゑ|を|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -65,8 +72,8 @@ kana-table.txt, gyoudan-table.txt には、それぞれかな入力、行段入�
 |だ|ぢ|づ|で|ど|ぢゃ|ぢゅ|ぢぇ|ぢょ|づぁ|づぃ|づぇ|づぉ|
 |ば|び|ぶ|べ|ぼ|びゃ|びゅ|びぇ|びょ|ぶぁ|ぶぃ|ぶぇ|ぶぉ|
 |ぱ|ぴ|ぷ|ぺ|ぽ|ぴゃ|ぴゅ|ぴぇ|びょ|ぷぁ|ぷぃ|ぷぇ|ぷぉ|
-|た|てぃ|とぅ|て|と|てゃ|てゅ|てぇ|てょ|つぁ|つぃ|つぇ|つぉ|
-|だ|でぃ|どぅ|で|ど|でゃ|でゅ|でぇ|でょ|づぁ|づぃ|づぇ|づぉ|
-|ふぁ|ふぃ|ふ|ふぇ|ふぉ|ふゃ|ふゅ|ふぇ|ふょ|ふぁ|ふぃ|ふぇ|ふぉ|
-|ゔぁ|ゔぃ|ゔ|ゔぇ|ゔぉ|ゔゃ|ゔゅ|ゔぇ|ゔょ|ゔぁ|ゔぃ|ゔぇ|ゔぉ|
+|た|てぃ|とぅ|て|と|てゃ|てゅ|てぇ|てょ|とぁ|とぃ|とぇ|とぉ|
+|だ|でぃ|どぅ|で|ど|でゃ|でゅ|でぇ|でょ|どぁ|どぃ|どぇ|どぉ|
+|ふぁ|ふぃ|ふ|ふぇ|ふぉ|ふゃ|ふゅ|ふぇ|ふょ|ほぁ|ほぃ|ほぇ|ほぉ|
+|ゔぁ|ゔぃ|ゔ|ゔぇ|ゔぉ|ゔゃ|ゔゅ|ゔぇ|ゔょ|ぼぁ|ぼぃ|ぼぇ|ぼぉ|
 |ぁ|ぃ|ぅ|ぇ|ぉ|ゃ|ゅ|ぇ|ょ|ゎ|うぃ|うぇ|うぉ|
