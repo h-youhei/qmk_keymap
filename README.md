@@ -1,19 +1,14 @@
 # Youhei's keymap
-![layout](img/keyboard-layout.png)
-
+![layout](img/layout.png)
+![dir,sign](img/dir_sign-layer.png)
+![num,fn](img/num_fn-layer.png)
 Each key legend on
 
 - Center is of course no modifier or layer.
 
 - Top Left is shifted sign letter.
 
-- Bottom Left is Arrow or Sign layer when be pressed with different hand.
-
-- Bottom Right is Number or Function layer when be pressed with different hand.
-
 - Top Right is modifier or layer when be holded.
-
-- Bottom Center is any layer.
 
 Clear key resets modifier or layer states.
 
@@ -43,11 +38,11 @@ keymap.txt には、変換や確定などの操作が定義されています。
 kana-table.txt, gyoudan-table.txt には、それぞれかな入力、行段入力用のローマ字テーブルが定義されています。
 
 ### かな入力
-![kana-layout](img/kana-layout.png)
+![kana-layout](img/kana.png)
 ローマ字テーブルで実装している都合上、濁音・半濁音は前置キーとなります。
 
 ### 行段入力
-![gyoudan-layout](img/gyoudan-layout.png)
+![gyoudan-layout](img/gyoudan.png)
 左手で子音、右手で母音を入力します。子音、母音の順で入力してください。
 
 や行、わ行も母音として扱っています。
