@@ -1,15 +1,13 @@
 # Youhei's keymap
 ![layout](img/layout.png)
+
+## Dir, Sign layer
 ![dir,sign](img/dir_sign-layer.png)
+
+## Num, Fn layer
 ![num,fn](img/num_fn-layer.png)
-Each key legend on
 
-- Center is of course no modifier or layer.
-
-- Top Left is shifted sign letter.
-
-- Top Right is modifier or layer when be holded.
-
+## details
 Clear key resets modifier or layer states.
 
 Reset key can be used instead of reset button. The key is used for overwrite firmware.  If you pressed the key, the keyboard is freezed. When it happned, plug out the cable then plug it in.
