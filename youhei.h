@@ -6,19 +6,16 @@
 
 enum Layer {
 	L_BASE,
-	L_LREPEAT,
-	L_RREPEAT,
 	L_SIGN,
 	L_DIRECTION,
 	L_NUMBER,
 	L_FUNCTION,
 };
 
+
 /*
 enum Macro {
-	M_NONE,
 };
-
 enum Function {
 	F_GUI_T_MCLK,
 };
@@ -40,8 +37,6 @@ enum Keycode_User {
 #define DIR_T(kc) LT(L_DIRECTION, kc)
 #define NUM_T(kc) LT(L_NUMBER, kc)
 #define FN_T(kc) LT(L_FUNCTION, kc)
-#define LRPT_T(kc) LT(L_LREPEAT, kc)
-#define RRPT_T(kc) LT(L_RREPEAT, kc)
 
 // click (left, middle, right)
 #define KC_LCLK KC_BTN1
@@ -50,9 +45,6 @@ enum Keycode_User {
 
 // aliases more meaningful for me
 #define KC_MULTI RALT(KC_NO)
-#define KC_CMPS KC_MULTI
-#define KC_TOGGLE_INPUT_METHOD KC_HENK
-#define KC_TGIM KC_TOGGLE_INPUT_METHOD
 
 // tapping key with special key
 //#define GUI_T_MCLK F(A_GUI_T_MCLK)
