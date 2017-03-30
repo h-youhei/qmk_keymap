@@ -6,9 +6,7 @@
 
 enum Layer {
 	L_BASE,
-	L_SIGN,
 	L_DIRECTION,
-	L_NUMBER,
 	L_FUNCTION,
 };
 
