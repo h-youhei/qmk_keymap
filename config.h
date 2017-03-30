@@ -11,4 +11,6 @@
 
 #define PREVENT_STUCK_MODIFIERS
 
+#define TAPPING_FORCE_HOLD
+
 #endif
