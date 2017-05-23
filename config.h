@@ -4,9 +4,9 @@
 #include "../../config.h"
 
 #undef TAPPING_TERM
-#define TAPPING_TERM 220
+#define TAPPING_TERM 300
 
-#define MOUSEKEY_WHEEL_MAX_SPEED 1
+#define MOUSEKEY_WHEEL_MAX_SPEED 0
 #define MOUSEKEY_WHEEL_TIME_TO_MAX 0
 
 #define PREVENT_STUCK_MODIFIERS
