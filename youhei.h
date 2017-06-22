@@ -6,9 +6,7 @@
 
 enum Layer {
 	L_BASE,
-//	L_DIR,
 	L_FN,
-	L_PAD,
 };
 
 /*
@@ -76,46 +74,8 @@ void tap_mousekey(uint8_t mouse) {
 	mousekey_send();
 };
 
-void tap_mouse_hold_mod(keyrecord_t *record, uint8_t mod, uint8_t mouse) {
-	if (record->event.pressed) {
-		if (is_hold(record)) {
-			register_mods(mod);
-		}
-	}
-	else {
-		if (is_hold(record)) {
-			unregister_mods(mod);
-		}
-		else {
-			tap_mousekey(mouse);
-		}
-	}
-};
-
-void tap_mouse_hold_layer(keyrecord_t *record, uint8_t layer, uint8_t mouse) {
-	if (record->event.pressed) {
-		if (is_hold(record)) {
-			layer_on(layer);
-		}
-	}
-	else {
-		if (is_hold(record)) {
-			layer_off(layer);
-		}
-		else {
-			tap_mousekey(mouse);
-		}
-	}
-};
-
 void action_function(keyrecord_t *record, uint8_t id, uint8_t opt) {
 	switch(id) {
-		case DIR_T_LCLK:
-			tap_mouse_hold_layer(record, L_DIR, KC_LCLK);
-			break;
-		case ALT_T_MCLK:
-			tap_mouse_hold_mod(record, MOD_LALT, KC_MCLK);
-			break;
 		case GUI_T_RCLK:
 			tap_mouse_hold_mod(record, MOD_LGUI, KC_RCLK);
 			break;
@@ -125,8 +85,6 @@ void action_function(keyrecord_t *record, uint8_t id, uint8_t opt) {
 };
 
 const uint16_t PROGMEM fn_actions[] = {
-	[DIR_T_LCLK] = ACTION_FUNCTION_TAP(DIR_T_LCLK),
-	[ALT_T_MCLK] = ACTION_FUNCTION_TAP(ALT_T_MCLK),
 	[GUI_T_RCLK] = ACTION_FUNCTION_TAP(GUI_T_RCLK),
 };
 
@@ -156,36 +114,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 */
 
 void matrix_init_user(void) {
-	ergodox_led_all_set(LED_BRIGHTNESS_LO);
 	ergodox_led_all_off();
 };
 
 void matrix_scan_user(void) {
 	uint32_t state = host_keyboard_leds();
-	ergodox_led_all_set(LED_BRIGHTNESS_LO);
 
-	if (state & 1 << USB_LED_CAPS_LOCK) {
+	if (state & (1 << USB_LED_CAPS_LOCK)) {
+		ergodox_right_led_2_set(LED_BRIGHTNESS_LO);
 		ergodox_right_led_2_on();
 	}
 	else {
 		ergodox_right_led_2_off();
 	}
 
-	if (state & 1 << USB_LED_NUM_LOCK) {
-		ergodox_right_led_1_on();
-	}
-	else {
-		ergodox_right_led_1_off();
-	}
-
-	switch(biton32(layer_state)) {
-		case L_PAD:
-			ergodox_right_led_3_on();
-			break;
-		default:
-			ergodox_right_led_3_off();
-		break;
-	}
+//	switch(biton32(layer_state)) {
+//		case L_PAD:
+//			ergodox_right_led_3_set(LED_BRIGHTNESS_LO);
+//			ergodox_right_led_3_on();
+//			break;
+//		default:
+//			ergodox_right_led_3_off();
+//		break;
+//	}
 };
 
 #endif
