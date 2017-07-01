@@ -4,7 +4,7 @@
 #include "../../config.h"
 
 #undef TAPPING_TERM
-#define TAPPING_TERM 220
+#define TAPPING_TERM 200
 
 #define PREVENT_STUCK_MODIFIERS
 
