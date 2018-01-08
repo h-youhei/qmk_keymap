@@ -1,13 +1,19 @@
 #ifndef CONFIG_USER_H
 #define CONFIG_USER_H
 
-#include "../../config.h"
+#include QMK_KEYBOARD_CONFIG_H
 
-#undef TAPPING_TERM
 #define TAPPING_TERM 200
 
 #define PREVENT_STUCK_MODIFIERS
 
-#define TAPPING_FORCE_HOLD
+#define PERMISSIVE_HOLD
+
+#define SIMULTANEOUS_WAIT_TERM 80
+#define SIMULTANEOUS_ALLOW_RATIO 70
+
+#define NO_ACTION_FUNCTION
+#define NO_ACTION_MACRO
+#define NO_ACTION_ONESHOT
 
 #endif
