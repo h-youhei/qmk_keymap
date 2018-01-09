@@ -60,7 +60,6 @@ void matrix_scan_simultaneous(void);
   This function is used to determine if pressed key takes process_simultaneous or normal process.
   Normal process doesn't have pressing delay.
 */
-__attribute__((weak))
 bool is_simultaneous_key(uint16_t keycode);
 
 /*
@@ -68,10 +67,11 @@ bool is_simultaneous_key(uint16_t keycode);
   when simultaneous tapping that both keys are simultaneous_mod or simultaneous_layer.
   The one that has priority is treated mod or layer.
 */
-__attribute__((weak))
 bool has_simultaneous_priority_to_a(uint16_t keycode_a, uint16_t keycode_b);
 
 /* __attribute__((weak)) */
 /* keypos_t get_key_opposite_hand(keypos_t key); */
+
+bool tap_code_user(uint16_t keycode);
 
 #endif

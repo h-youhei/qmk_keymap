@@ -50,6 +50,8 @@ static void repeating_keys_clear(void);
 
 static void register_mod_or_layer_on(uint16_t keycode);
 static void unregister_mod_or_layer_off(uint16_t keycode);
+static void tap_code_simultaneous(uint16_t keycode);
+static void tap_code_simultaneous_mod(uint16_t keycode);
 static bool is_simultaneous(simultaneous_t simultaneous_mod);
 static bool is_simultaneous_mod(uint16_t keycode);
 static bool is_simultaneous_layer(uint16_t keycode);
@@ -94,12 +96,17 @@ static inline void clear_simultaneousing_key(void) {
   simultaneousing_key.released_time = 0;
 }
 
-__attribute__ ((weak))
-bool is_simultaneous_key(uint16_t keycode) {
-  return in_range(keycode, KC_A, KC_0) || in_range(keycode, KC_MINUS, KC_SLASH);
+__attribute__((weak))
+bool tap_code_user(uint16_t keycode) {
+  return true;
 }
 
-__attribute__ ((weak))
+__attribute__((weak))
+bool is_simultaneous_key(uint16_t keycode) {
+  return IS_KEY(keycode);
+}
+
+__attribute__((weak))
 bool has_simultaneous_priority_to_a (uint16_t keycode_a, uint16_t keycode_b) {
   uint8_t mod_a = get_mod_from_keycode(keycode_a);
   uint8_t mod_b = get_mod_from_keycode(keycode_b);
@@ -177,7 +184,7 @@ void waiting_buffer_scan() {
 	  p->data.pressed_time = 0;
 	}
 	else {
-	  tap_code(get_key_from_keycode(keycode));
+	  tap_code_simultaneous_mod(keycode);
 	  waiting_buffer_del(p);
 	}
   }
@@ -208,7 +215,7 @@ void waiting_buffer_scan_simultaneous() {
 		  mod_stack[mod_stack_head++] = keycode;
 		}
 		else {
-		  tap_code(get_key_from_keycode(keycode));
+		  tap_code_simultaneous_mod(keycode);
 		}
 		waiting_buffer_del(p);
 	  }
@@ -241,12 +248,12 @@ void waiting_buffer_scan_simultaneous() {
   }
   uint16_t keycode = get_keycode_from_keypos(simultaneousing_key.key);
   if(is_simultaneous_mod(keycode) || is_simultaneous_layer(keycode)) {
-	tap_code(get_key_from_keycode(keycode));
+	tap_code_simultaneous_mod(keycode);
   }
-  else tap_code(keycode);
+  else tap_code_simultaneous(keycode);
   clear_simultaneousing_key();
   for(uint8_t i = 0; i < key_queue_head; i++) {
-	tap_code(get_key_from_keycode(key_queue[i]));
+	tap_code_simultaneous_mod(key_queue[i]);
   }
   for(uint8_t i = mod_stack_head; i > 0;) {
 	unregister_mod_or_layer_off(mod_stack[--i]);
@@ -327,6 +334,15 @@ void unregister_mod_or_layer_off(uint16_t keycode) {
 	layer_off(get_layer_from_keycode(keycode));
   }
 }
+
+void tap_code_simultaneous(uint16_t keycode) {
+  if(tap_code_user(keycode)) tap_code(keycode);
+}
+
+void tap_code_simultaneous_mod(uint16_t keycode) {
+  tap_code(get_key_from_keycode(keycode));
+}
+
 bool is_simultaneous(simultaneous_t simultaneous_mod) {
   if(simultaneous_mod.released_time == 0) {
 	simultaneous_mod.released_time = simultaneousing_key.released_time;
@@ -355,15 +371,15 @@ bool process_simultaneous(uint16_t keycode, keyrecord_t *record) {
 	return process_simultaneous_key(keycode, record);
   }
   else {
-	keyevent_t event = record->event;
-	if(event.pressed) {
-	  if(simultaneousing_key.pressed_time != 0) {
-		simultaneousing_key.released_time = event.time;
-		waiting_buffer_scan_simultaneous();
-	  }
-	  waiting_buffer_scan();
-	}
-	return true;
+  	keyevent_t event = record->event;
+  	if(event.pressed) {
+  	  if(simultaneousing_key.pressed_time != 0) {
+  		simultaneousing_key.released_time = event.time;
+  		waiting_buffer_scan_simultaneous();
+  	  }
+  	  waiting_buffer_scan();
+  	}
+  	return true;
   }
 }
 
@@ -380,7 +396,7 @@ bool process_simultaneous_key(uint16_t keycode, keyrecord_t *record) {
 	simultaneousing_key.key = event.key;
 	simultaneousing_key.pressed_time = event.time;
 	simultaneousing_key.released_time = 0;
-	await_repeat = true;
+	if(IS_KEY(keycode)) await_repeat = true;
   }
   else {
 	repeating_node_t *repeating_p = repeating_keys_get(event.key);
@@ -396,7 +412,7 @@ bool process_simultaneous_key(uint16_t keycode, keyrecord_t *record) {
 	if(simultaneousing_key.pressed_time == 0) return false;
 
 	if(waiting_buffer == NULL) {
-	  tap_code(keycode);
+	  tap_code_simultaneous(keycode);
 	  clear_simultaneousing_key();
 	}
 	else {
@@ -427,7 +443,7 @@ bool process_simultaneous_mod(uint16_t keycode, keyrecord_t *record) {
 	else {
 	  if(waiting_buffer_only(*p)) {
 		if(within_tapping_term(p->data.pressed_time)) {
-		  tap_code(get_key_from_keycode(keycode));
+		  tap_code_simultaneous_mod(keycode);
 		}
 		else {
 		  register_mod_or_layer_on(keycode);
@@ -454,9 +470,9 @@ bool process_simultaneous_mod(uint16_t keycode, keyrecord_t *record) {
 		waiting_buffer_scan_simultaneous();
 	  }
 	  else {
+		simultaneousing_key = p->data;
 		waiting_buffer_del(p);
-		waiting_buffer_scan();
-		tap_code(get_key_from_keycode(keycode));
+		waiting_buffer_scan_simultaneous();
 	  }
 	}
   }
@@ -467,8 +483,12 @@ void matrix_scan_simultaneous() {
   if(await_repeat) {
 	if(!within_simultaneousing_term(simultaneousing_key.pressed_time)) {
 	  waiting_buffer_scan();
-	  register_code(get_keycode_from_keypos(simultaneousing_key.key));
-	  repeating_keys_add(simultaneousing_key.key);
+	  uint16_t keycode = get_keycode_from_keypos(simultaneousing_key.key);
+	  if(IS_KEY(keycode)) {
+		register_code(keycode);
+		repeating_keys_add(simultaneousing_key.key);
+	  }
+	  else tap_code_simultaneous(keycode);
 	  await_repeat = false;
 	  clear_simultaneousing_key();
 	}

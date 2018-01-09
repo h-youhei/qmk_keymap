@@ -1,7 +1,7 @@
 #include "util_user.h"
 #include "action.h"
 
-inline void tap_code(uint16_t keycode) {
+void tap_code(uint16_t keycode) {
   register_code(keycode);
   unregister_code(keycode);
 }
