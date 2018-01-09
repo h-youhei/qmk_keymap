@@ -38,7 +38,7 @@ enum simultaneous_keycodes {
 
 /*
   Key repeat starts after SIMULTANEOUS_WAIT_TERM.
-  If SIMULTANEOUS_ALLOW_RATIO doesn't defined,
+  If SIMULTANEOUS_ALLOW_PERCENTAGE doesn't defined,
   the term is also used to determine if the process is simultaneous;
   by checking differnce of each key's pressed time and released time are within the term.
 */
