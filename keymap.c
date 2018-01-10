@@ -27,8 +27,6 @@ enum Layer {
 #define STABLE KC_NO
 #endif
 
-static void numlock_on(uint8_t usb_led);
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch(keycode) {
   case KC_P000:
@@ -41,24 +39,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   default:
 	break;
   }
+
 #ifdef ENABLE_STABLE_LAYER
   uint8_t layer = biton32(default_layer_state);
   if(layer == L_STABLE) return true;
 #endif
   return process_simultaneous(keycode, record);
-}
-
-bool tap_code_user(uint16_t keycode) {
-  switch(keycode) {
-  case KC_P000:
-	for(uint8_t i=0; i<3; i++) {
-	  tap_code(KC_P0);
-	}
-	return false;
-  default:
-	break;
-  }
-  return true;
 }
 
 void matrix_init_user(void) {
@@ -70,17 +56,9 @@ void matrix_scan_user(void) {
   matrix_scan_simultaneous();
 }
 
-void numlock_on(uint8_t usb_led) {
-  if(!(usb_led & (1<<USB_LED_NUM_LOCK))) {
-	tap_code(KC_NUMLOCK);
-  }
-}
-
 void led_set_user(uint8_t usb_led) {
   if(usb_led & (1<<USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
   else ergodox_right_led_2_off();
-
-  numlock_on(usb_led);
 }
 
 /* TODO: open this function in upstream. */

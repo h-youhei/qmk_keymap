@@ -38,8 +38,7 @@ enum simultaneous_keycodes {
 
 /*
   Key repeat starts after SIMULTANEOUS_WAIT_TERM.
-  If SIMULTANEOUS_ALLOW_PERCENTAGE doesn't defined,
-  the term is also used to determine if the process is simultaneous;
+  It is also used to determine if the process is simultaneous;
   by checking differnce of each key's pressed time and released time are within the term.
 */
 #ifndef SIMULTANEOUS_WAIT_TERM
@@ -49,12 +48,10 @@ enum simultaneous_keycodes {
 /*
   SIMULTANEOUS_ALLOW_PRECENTAGE is used to determine if the process is simultaneous;
   by checking the ratio of term simultaneous_mod is pressing is over the percentage in term simultaneous_key is pressing.
-  You can set in config.h.
 */
-// #define SIMULTANEOUS_ALLOW_PERCENTAGE 50
-
-bool process_simultaneous(uint16_t keycode, keyrecord_t *record);
-void matrix_scan_simultaneous(void);
+#ifndef SIMULTANEOUS_ALLOW_PRECENTAGE
+#define SIMULTANEOUS_ALLOW_PERCENTAGE 60
+#endif
 
 /*
   This function is used to determine if pressed key takes process_simultaneous or normal process.
@@ -69,9 +66,7 @@ bool is_simultaneous_key(uint16_t keycode);
 */
 bool has_simultaneous_priority_to_a(uint16_t keycode_a, uint16_t keycode_b);
 
-/* __attribute__((weak)) */
-/* keypos_t get_key_opposite_hand(keypos_t key); */
-
-bool tap_code_user(uint16_t keycode);
+bool process_simultaneous(uint16_t keycode, keyrecord_t *record);
+void matrix_scan_simultaneous(void);
 
 #endif
