@@ -49,7 +49,7 @@ enum simultaneous_keycodes {
   SIMULTANEOUS_ALLOW_PRECENTAGE is used to determine if the process is simultaneous;
   by checking the ratio of term simultaneous_mod is pressing is over the percentage in term simultaneous_key is pressing.
 */
-#ifndef SIMULTANEOUS_ALLOW_PRECENTAGE
+#ifndef SIMULTANEOUS_ALLOW_PERCENTAGE
 #define SIMULTANEOUS_ALLOW_PERCENTAGE 60
 #endif
 
