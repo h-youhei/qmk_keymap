@@ -2,11 +2,10 @@
 #include "keycode.h" //KC_*
 #include "action.h" //register/unregister_code/mods clear_keyboard
 #include "action_tapping.h" //TAPPING_TERM WAITING_BUFFER_SIZE
-#include "action_layer.h" //layer_state default_layer_state layer_switch_get_layer
-#include "keymap.h" //keymap_key_to_keycode
+#include "action_layer.h" //layer_on layer_off
 #include "timer.h" //timer_elapsed
 #include "util.h" //biton32
-#include "util_user.h" //tap_code in_range
+#include "util_user.h" //tap_code in_range get_keycode_from_keypos mod_for_send
 #include <stdlib.h> //malloc free
 
 #include "nodebug.h"
@@ -65,10 +64,8 @@ static bool is_simultaneous_mod(uint16_t keycode);
 static bool is_simultaneous_layer(uint16_t keycode);
 
 static void clear_global(void);
-static uint16_t get_keycode_from_keypos(keypos_t keypos);
 static uint8_t get_key_from_keycode(uint16_t keycode);
 static uint8_t get_mod_from_keycode(uint16_t keycode);
-static uint8_t mod_for_send(uint8_t mod);
 static uint8_t get_layer_from_keycode(uint16_t keycode);
 static bool within_tapping_term(uint16_t time);
 static uint16_t timer_diff(uint16_t timer_a, uint16_t timer_b);
@@ -497,20 +494,12 @@ void clear_global() {
   repeating_keys_clear();
 }
 
-uint16_t get_keycode_from_keypos(keypos_t keypos) {
-  return keymap_key_to_keycode(layer_switch_get_layer(keypos), keypos);
-}
-
 uint8_t get_key_from_keycode(uint16_t keycode) {
   return keycode & 0xFF;
 }
 
 uint8_t get_mod_from_keycode(uint16_t keycode) {
   return (keycode ^ USER_MOD_SIMULTANEOUS) >> 8;
-}
-
-uint8_t mod_for_send(uint8_t mod) {
-  return mod&0x10 ? mod<<4 : mod;
 }
 
 uint8_t get_layer_from_keycode(uint16_t keycode) {
