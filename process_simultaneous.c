@@ -143,15 +143,11 @@ bool process_simultaneous_key(uint16_t keycode, keyrecord_t *record) {
 
 	if(!KEYEQ(event.key, simultaneousing_key.key)) return true;
 
-	// already released in waiting_buffer_scan()
+	// already processed in waiting_buffer_scan()
 	if(simultaneousing_key.pressed_time == 0) return false;
 
 	simultaneousing_key.released_time = event.time;
-	if(waiting_buffer == NULL) {
-	  tap_simultaneous();
-	  clear_simultaneousing_key();
-	}
-	else waiting_buffer_scan_simultaneous();
+	waiting_buffer_scan_simultaneous();
   }
   return false;
 }
@@ -316,9 +312,6 @@ void waiting_buffer_scan_simultaneous() {
   uint8_t key_queue_head = 0;
   uint8_t mod_stack_head = 0;
 
-  /* if(waiting_buffer == NULL) { */
-	/* error("waiting_buffer shouldn't NULL in waiting_buffer_scan()"); */
-  /* } */
   for(simultaneous_node_t *p = waiting_buffer; p != NULL; p = p->next) {
 	uint16_t keycode = get_keycode_from_keypos(p->data.key);
 	/* mod is pressed before key */
