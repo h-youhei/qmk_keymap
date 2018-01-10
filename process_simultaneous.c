@@ -3,7 +3,7 @@
 #include "action.h" //register/unregister_code/mods clear_keyboard
 #include "action_tapping.h" //TAPPING_TERM WAITING_BUFFER_SIZE
 #include "action_layer.h" //layer_on layer_off
-#include "timer.h" //timer_elapsed
+#include "timer.h" //timer_elapsed TIMER_DIFF16
 #include "util_user.h" //tap_code in_range get_keycode_from_keypos mod_for_send
 #include <stdlib.h> //malloc free
 
@@ -67,7 +67,6 @@ static uint8_t get_key_from_keycode(uint16_t keycode);
 static uint8_t get_mod_from_keycode(uint16_t keycode);
 static uint8_t get_layer_from_keycode(uint16_t keycode);
 static bool within_tapping_term(uint16_t time);
-static uint16_t timer_diff(uint16_t timer_a, uint16_t timer_b);
 
 static inline bool IS_SIMULTANEOUSING(void) {
   return simultaneousing_key.pressed_time > 0;
@@ -484,7 +483,7 @@ bool is_simultaneous(simultaneous_t simultaneous_mod) {
   if(simultaneousing_key.pressed_time > simultaneous_mod.pressed_time) {
 	simultaneous_mod.pressed_time = simultaneousing_key.pressed_time;
   }
-  return (float)timer_diff(simultaneous_mod.pressed_time, simultaneous_mod.released_time) / timer_diff(simultaneousing_key.pressed_time, simultaneousing_key.released_time) >= (float)SIMULTANEOUS_ALLOW_PERCENTAGE / 100;
+  return (float)TIMER_DIFF_16(simultaneous_mod.pressed_time, simultaneous_mod.released_time) / TIMER_DIFF_16(simultaneousing_key.pressed_time, simultaneousing_key.released_time) >= (float)SIMULTANEOUS_ALLOW_PERCENTAGE / 100;
 }
 
 void clear_global() {
@@ -508,8 +507,3 @@ uint8_t get_layer_from_keycode(uint16_t keycode) {
 bool within_tapping_term(uint16_t time) {
   return timer_elapsed(time) < TAPPING_TERM;
 }
-
-uint16_t timer_diff(uint16_t timer_a, uint16_t timer_b) {
-  return timer_a >= timer_b ? timer_a - timer_b : timer_b - timer_a;
-}
-
