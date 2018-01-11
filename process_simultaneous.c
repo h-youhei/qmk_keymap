@@ -477,13 +477,14 @@ void tap_simultaneous_mod(uint16_t keycode) {
 }
 
 bool is_simultaneous(simultaneous_t simultaneous_mod) {
+  /* mod is being pressed */
   if(simultaneous_mod.released_time == 0) {
 	simultaneous_mod.released_time = simultaneousing_key.released_time;
   }
-  if(simultaneousing_key.pressed_time > simultaneous_mod.pressed_time) {
+  if(simultaneous_mod.pressed_time < simultaneousing_key.pressed_time) {
 	simultaneous_mod.pressed_time = simultaneousing_key.pressed_time;
   }
-  return (float)TIMER_DIFF_16(simultaneous_mod.pressed_time, simultaneous_mod.released_time) / TIMER_DIFF_16(simultaneousing_key.pressed_time, simultaneousing_key.released_time) >= (float)SIMULTANEOUS_ALLOW_PERCENTAGE / 100;
+  return (float)TIMER_DIFF_16(simultaneous_mod.released_time, simultaneous_mod.pressed_time) / TIMER_DIFF_16(simultaneousing_key.released_time, simultaneousing_key.pressed_time) >= (float)SIMULTANEOUS_ALLOW_PERCENTAGE / 100;
 }
 
 void clear_global() {
