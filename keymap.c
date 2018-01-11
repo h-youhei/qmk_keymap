@@ -3,15 +3,15 @@
 #include "process_simultaneous.h"
 
 enum user_code {
-  KC_P000 = SAFE_RANGE,
+	KC_P000 = SAFE_RANGE,
 };
 
 enum Layer {
-  L_BASE,
-  #ifdef ENABLE_STABLE_LAYER
-  L_STABLE,
-  #endif
-  L_FN,
+	L_BASE,
+#ifdef ENABLE_STABLE_LAYER
+	L_STABLE,
+#endif
+	L_FN,
 };
 #define FN_T(kc) LT(L_FN, kc)
 #define FN_S(kc) LS(L_FN, kc)
@@ -28,49 +28,49 @@ enum Layer {
 #endif
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch(keycode) {
-  case KC_P000:
-	if(record->event.pressed) {
-	  for(uint8_t i=0; i<3; i++) {
-		tap_code(KC_P0);
-	  }
+	switch(keycode) {
+	case KC_P000:
+		if(record->event.pressed) {
+			for(uint8_t i=0; i<3; i++) {
+				tap_code(KC_P0);
+			}
+		}
+		return false;
+	default:
+		break;
 	}
-	return false;
-  default:
-	break;
-  }
 
 #ifdef ENABLE_STABLE_LAYER
-  uint8_t layer = biton32(default_layer_state);
-  if(layer == L_STABLE) return true;
+	uint8_t layer = biton32(default_layer_state);
+	if(layer == L_STABLE) return true;
 #endif
-  return process_simultaneous(keycode, record);
+	return process_simultaneous(keycode, record);
 }
 
 void matrix_init_user(void) {
-  ergodox_led_all_set(LED_BRIGHTNESS_LO);
-  ergodox_led_all_off();
+	ergodox_led_all_set(LED_BRIGHTNESS_LO);
+	ergodox_led_all_off();
 }
 
 void matrix_scan_user(void) {
-  matrix_scan_simultaneous();
+	matrix_scan_simultaneous();
 }
 
 void led_set_user(uint8_t usb_led) {
-  if(usb_led & (1<<USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
-  else ergodox_right_led_2_off();
+	if(usb_led & (1<<USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
+	else ergodox_right_led_2_off();
 }
 
 /* TODO: open this function in upstream. */
 #ifdef ENABLE_STABLE_LAYER
 void default_layer_state_set_user(uint32_t state) {
-  if(state == L_STABLE) ergodox_right_led_1_on();
-  else ergodox_right_led_1_off();
+	if(state == L_STABLE) ergodox_right_led_1_on();
+	else ergodox_right_led_1_off();
 }
 #endif
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [L_BASE] = KEYMAP(
+	[L_BASE] = KEYMAP(
 		// left hand
 		KC_PSCR, KC_3, KC_2, KC_1, KC_5, KC_4, KC_NO,
 		KC_MHEN, KC_Q, KC_C, KC_L, KC_P, KC_V, KC_ESC,
@@ -91,8 +91,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_NO, KC_NO,
 		KC_NO,
 		KC_KANA, FN_S(KC_TAB), RSFT_S(KC_SPC)
-	),
-  #ifdef ENABLE_STABLE_LAYER
+		),
+#ifdef ENABLE_STABLE_LAYER
 	[L_STABLE] = KEYMAP(
 		// left hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
@@ -114,8 +114,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
 		KC_TRNS, FN_T(KC_TAB), RSFT_T(KC_SPC)
-	),
-  #endif
+		),
+#endif
 	[L_FN] = KEYMAP(
 		// left hand
 		KC_NO, KC_F3, KC_F2, KC_F1, KC_F5, KC_F4, KC_NO,
@@ -137,5 +137,5 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_NO, KC_NO,
 		KC_NO,
 		KC_NO, KC_TRNS, KC_TRNS
-	),
+		),
 };
