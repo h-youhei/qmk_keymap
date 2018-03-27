@@ -59,13 +59,15 @@ void matrix_scan_user(void) {
 void led_set_user(uint8_t usb_led) {
 	if(usb_led & (1<<USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
 	else ergodox_right_led_2_off();
+	if(usb_led & (1<<USB_LED_SCROLL_LOCK)) ergodox_right_led_1_on();
+	else ergodox_right_led_1_off();
 }
 
 /* TODO: open this function in upstream. */
 #ifdef ENABLE_STABLE_LAYER
 void default_layer_state_set_user(uint32_t state) {
-	if(state == L_STABLE) ergodox_right_led_1_on();
-	else ergodox_right_led_1_off();
+	if(state == L_STABLE) ergodox_right_led_3_on();
+	else ergodox_right_led_3_off();
 }
 #endif
 
@@ -76,7 +78,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_MHEN, KC_Q, KC_C, KC_L, KC_P, KC_V, KC_ESC,
 		KC_SLSH, KC_O, KC_S, KC_R, KC_N, KC_H,
 		KC_MCLK, KC_X, KC_J, KC_MINS, KC_F, KC_B, KC_BSPC,
-		KC_RCLK, KC_LCLK, LGUI_S(KC_GRV), LALT_S(KC_BSLS), LCTL_S(KC_EQL),
+		KC_RCLK, KC_LCLK, LGUI_S(KC_GRV), LCTL_S(KC_BSLS), LALT_S(KC_EQL),
 		// thumb
 		KC_NO, KC_NO,
 		KC_NO,
@@ -86,7 +88,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_INS, KC_K, KC_G, KC_U, KC_Y, KC_Z, KC_HENK,
 		KC_D, KC_T, KC_E, KC_I, KC_A, KC_SCLN,
 		KC_DEL, KC_W, KC_M, KC_COMM, KC_DOT, KC_QUOT, KC_LCLK,
-		RCTL_S(KC_LBRC), RALT_S(KC_RBRC), RGUI_S(KC_PAUS), KC_MCLK, KC_RCLK,
+		RALT_S(KC_LBRC), RCTL_S(KC_RBRC), RGUI_S(KC_PAUS), KC_MCLK, KC_RCLK,
 		// thumb
 		KC_NO, KC_NO,
 		KC_NO,
@@ -99,7 +101,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, LGUI_T(KC_GRV), LALT_T(KC_BSLS), LCTL_T(KC_EQL),
+		KC_TRNS, KC_TRNS, LGUI_T(KC_GRV), LCTL_T(KC_BSLS), LALT_T(KC_EQL),
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
@@ -109,7 +111,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		RCTL_T(KC_LBRC), RALT_T(KC_RBRC), RGUI_T(KC_PAUS), KC_TRNS, KC_TRNS,
+		RALT_T(KC_LBRC), RCTL_T(KC_RBRC), RGUI_T(KC_PAUS), KC_TRNS, KC_TRNS,
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
@@ -131,7 +133,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_NO, KC_F8, KC_F9, KC_F10, KC_F6, KC_F7, KC_NO,
 		KC_NO, KC_NO, KC_LEFT, KC_RGHT, KC_F11, KC_F12, KC_NO,
 		KC_HOME, KC_DOWN, KC_UP, KC_END, KC_APP, KC_NO,
-		KC_NO, KC_NO, KC_PGDN, KC_PGUP, KC_NO, KC_NO, KC_NO,
+		KC_NO, KC_NO, KC_PGDN, KC_PGUP, KC_SLCK, KC_NO, KC_NO,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_NO, KC_NO,
 		// thumb
 		KC_NO, KC_NO,
