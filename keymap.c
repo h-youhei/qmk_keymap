@@ -4,6 +4,10 @@
 
 enum user_code {
 	KC_P000 = SAFE_RANGE,
+	KC_CTLLK,
+	KC_SFTLK,
+	KC_ALTLK,
+	KC_GUILK
 };
 
 enum Layer {
@@ -27,12 +31,65 @@ enum Layer {
 #define STABLE KC_NO
 #endif
 
+static uint8_t mod_locked = 0;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	switch(keycode) {
 	case KC_P000:
 		if(record->event.pressed) {
 			for(uint8_t i=0; i<3; i++) {
 				tap_code(KC_P0);
+			}
+		}
+		return false;
+	case KC_CTLLK:
+		if(record->event.pressed) {
+			mod_locked ^= MOD_LCTL;
+			if(mod_locked & MOD_LCTL) {
+				register_code(KC_LCTL);
+				ergodox_right_led_3_on();
+			}
+			else {
+				unregister_code(KC_LCTL);
+				if(!mod_locked) ergodox_right_led_3_off();
+			}
+		}
+		return false;
+	case KC_SFTLK:
+		if(record->event.pressed) {
+			mod_locked ^= MOD_LSFT;
+			if(mod_locked & MOD_LSFT) {
+				register_code(KC_LSFT);
+				ergodox_right_led_3_on();
+			}
+			else {
+				unregister_code(KC_LSFT);
+				if(!mod_locked) ergodox_right_led_3_off();
+			}
+		}
+		return false;
+	case KC_ALTLK:
+		if(record->event.pressed) {
+			mod_locked ^= MOD_LALT;
+			if(mod_locked & MOD_LALT) {
+				register_code(KC_LALT);
+				ergodox_right_led_3_on();
+			}
+			else {
+				unregister_code(KC_LALT);
+				if(!mod_locked) ergodox_right_led_3_off();
+			}
+		}
+		return false;
+	case KC_GUILK:
+		if(record->event.pressed) {
+			mod_locked ^= MOD_LGUI;
+			if(mod_locked & MOD_LGUI) {
+				register_code(KC_LGUI);
+				ergodox_right_led_3_on();
+			}
+			else {
+				unregister_code(KC_LGUI);
+				if(!mod_locked) ergodox_right_led_3_off();
 			}
 		}
 		return false;
@@ -78,7 +135,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_MHEN, KC_Q, KC_C, KC_L, KC_P, KC_V, KC_ESC,
 		KC_SLSH, KC_O, KC_S, KC_R, KC_N, KC_H,
 		KC_NO, KC_X, KC_J, KC_MINS, KC_F, KC_B, KC_BSPC,
-		KC_NO, KC_NO, LGUI_S(KC_GRV), LCTL_S(KC_BSLS), LALT_S(KC_EQL),
+		KC_GUILK, KC_CTLLK, LGUI_S(KC_GRV), LCTL_S(KC_BSLS), LALT_S(KC_EQL),
 		// thumb
 		KC_RCLK, KC_LCLK,
 		KC_MCLK,
@@ -88,7 +145,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_INS, KC_K, KC_G, KC_U, KC_Y, KC_Z, KC_HENK,
 		KC_D, KC_T, KC_E, KC_I, KC_A, KC_SCLN,
 		KC_DEL, KC_W, KC_M, KC_COMM, KC_DOT, KC_QUOT, KC_NO,
-		RALT_S(KC_LBRC), RCTL_S(KC_RBRC), RGUI_S(KC_PAUS), KC_NO, KC_NO,
+		RALT_S(KC_LBRC), RCTL_S(KC_RBRC), RGUI_S(KC_PAUS), KC_ALTLK, KC_SFTLK,
 		// thumb
 		KC_WBAK, KC_WFWD,
 		KC_WHOM,
