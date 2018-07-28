@@ -17,5 +17,6 @@ uint16_t get_keycode_from_keypos(keypos_t keypos) {
 }
 
 uint8_t mod_for_send(uint8_t mod) {
+	//0x10 is right mod flag
 	return mod&0x10 ? mod<<4 : mod;
 }

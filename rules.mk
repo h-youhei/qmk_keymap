@@ -1,5 +1,6 @@
 SRC += process_simultaneous.c util_user.c
-
+KEY_LOCK_ENABLE = yes
+### Overwrite ErgodoxEZ's default settings ###
 # BOOTMAGIC_ENABLE = no
 # MOUSEKEY_ENABLE = yes
 # EXTRAKEY_ENABLE = yes
