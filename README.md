@@ -1,6 +1,12 @@
 # Youhei's keymap
 English|[日本語](README.ja.md)
 
+## Install
+1. clone [qmk_firmware][qmk]
+2. clone this repository in `qmk_firmware/layouts/community/ergodox`
+3. run `sh write.sh`
+
+## Base
 ```
  ------------------------------                     ------------------------------
 | Prnt | # | @ | ! | % | $ |   |                   |   | * | ( | ) | ^ | & |      |
@@ -56,3 +62,5 @@ IME key is used for toggle Input Method. Internally, it's assigned to KANA key.
 
 ## Japanese Input
 see [Japanese Readme](README.ja.md)
+
+[qmk]: https://github.com/qmk/qmk_firmware

@@ -1,6 +1,14 @@
 # Youhei配列
 [English](README.md)|日本語
 
+[qmk_firmware][qmk]
+
+## Install
+1. [qmk_firmware][qmk] をクローン
+2. このリポジトリを `qmk_firmware/layouts/community/ergodox` にクローン
+3. `sh write.sh`を実行
+
+## Base
 ```
  ------------------------------                     ------------------------------
 | Prnt | # | @ | ! | % | $ |   |                   |   | * | ( | ) | ^ | & |      |
@@ -148,3 +156,5 @@ kana-table.txt, gyoudan-table.txt には、それぞれかな入力、行段入�
 |ふぁ|ふぃ|ふ|ふぇ|ふぉ|ふゃ|ふゅ|ふぇ|ふょ|ほぁ|ほぃ|ほぇ|ほぉ|
 |ゔぁ|ゔぃ|ゔ|ゔぇ|ゔぉ|ゔゃ|ゔゅ|ゔぇ|ゔょ|ぼぁ|ぼぃ|ぼぇ|ぼぉ|
 |ぁ|ぃ|ぅ|ぇ|ぉ|ゃ|ゅ|ぇ|ょ|ゎ|うぃ|うぇ|うぉ|
+
+[qmk]: https://github.com/qmk/qmk_firmware
