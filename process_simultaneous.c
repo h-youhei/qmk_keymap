@@ -1,10 +1,10 @@
 #include "process_simultaneous.h"
 #include "keycode.h" //KC_*
-#include "action.h" //register/unregister_code/mods clear_keyboard
+#include "action.h" //register/unregister/tap_code/mods clear_keyboard
 #include "action_tapping.h" //TAPPING_TERM WAITING_BUFFER_SIZE
 #include "action_layer.h" //layer_on layer_off
 #include "timer.h" //timer_elapsed TIMER_DIFF16
-#include "util_user.h" //tap_code in_range get_keycode_from_keypos mod_for_send
+#include "util_user.h" //in_range get_keycode_from_keypos mod_for_send
 #include <stdlib.h> //malloc free
 
 #include "nodebug.h"
@@ -473,7 +473,9 @@ void tap_simultaneous() {
 }
 
 void tap_simultaneous_mod(uint16_t keycode) {
-	tap_code(get_key_from_keycode(keycode));
+	//tap_code(get_key_from_keycode(keycode));
+	register_code(get_key_from_keycode(keycode));
+	register_code(get_key_from_keycode(keycode));
 }
 
 bool is_simultaneous(simultaneous_t simultaneous_mod) {

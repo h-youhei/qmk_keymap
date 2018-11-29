@@ -1,5 +1,6 @@
 #include "ergodox_ez.h"
 #include "util_user.h"
+#include "action.h"
 #include "process_simultaneous.h"
 
 enum user_code {
@@ -37,7 +38,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	case KC_P000:
 		if(record->event.pressed) {
 			for(uint8_t i=0; i<3; i++) {
-				tap_code(KC_P0);
+				// tap_code(KC_P0);
+				register_code(KC_P0);
+				unregister_code(KC_P0);
 			}
 		}
 		return false;
