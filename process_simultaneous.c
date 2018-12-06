@@ -302,7 +302,9 @@ void waiting_buffer_scan() {
 }
 
 void waiting_buffer_scan_simultaneous() {
+	// tap mod as key at the end
 	uint16_t key_queue[WAITING_BUFFER_SIZE] = {};
+	// release mods at the end
 	uint16_t mod_stack[WAITING_BUFFER_SIZE] = {};
 	uint8_t key_queue_head = 0;
 	uint8_t mod_stack_head = 0;

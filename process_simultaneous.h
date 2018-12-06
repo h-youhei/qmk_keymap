@@ -56,6 +56,12 @@ enum simultaneous_keycodes {
 /*
   This function is used to determine if pressed key takes process_simultaneous or normal process.
   Normal process doesn't have pressing delay.
+  For example,
+	bool is_simultaneous_key(uint16_t keycode) {
+		if(keycode == you want it to take normal process)
+			return false
+		return IS_KEY(keycode);
+	}
 */
 bool is_simultaneous_key(uint16_t keycode);
 
