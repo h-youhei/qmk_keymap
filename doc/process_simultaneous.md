@@ -1,8 +1,18 @@
-core logic
-
+## important variable
 simultaneousing_key: the key waiting simulaneous handling
+
 waiting_buffer: simultaneous mods waiting simulaneous handling
 
+pressed_time != 0 & released_time = 0 being pressed
+
+pressed_time != 0 & released_time != 0 pressed and released but not processed
+
+pressed_time == 0 already processed press but release by waiting_buffer_scan()
+
+after processed both press and release, delete from buffer by waiting_buffer_del()
+
+## core logic
+```
 process_simultaneous
 	if keycode is simultaneous mod or layer
 		process_simultaneous_mod
@@ -11,7 +21,9 @@ process_simultaneous
 
 	last some lines handle is_simultaneous_key
 end
+```
 
+```
 process_simultaneous_key
 	if pressed
 		if previous key waits simultaneous handling
@@ -25,7 +37,9 @@ process_simultaneous_key
 		flag released
 		waiting_buffer_scan_simultaneous
 end
+```
 
+```
 process_simultaneous_mod
 	if pressed
 		add to buffer
@@ -50,7 +64,12 @@ process_simultaneous_mod
 			else
 				waiting_buffer_scan_simultaneous
 end
+```
 
+use waiting_buffer_scan_simultaneous
+with release events which need simultaneous handling.
+otherwise use waiting_buffer_scan
+```
 waiting_buffer_scan_simultaneous
 	key_queue: tap mods as key at the end
 	mod_stack: release mods at the end
@@ -82,12 +101,10 @@ waiting_buffer_scan_simultaneous
 	tap mod as key in key_queue
 	release mod in mod_stack
 end
+```
 
-use waiting_buffer_scan_simultaneous
-with release events which need simultaneous handling
-otherwise use waiting_buffer_scan
-
+```
 matrix_scan_simultaneous
 	handle key repeat
 	handle mod press
-
+```

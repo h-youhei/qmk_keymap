@@ -5,7 +5,8 @@
 
 /* #define ENABLE_STABLE_LAYER */
 
-#define TAPPING_TERM 200
+#undef TAPPING_TERM
+#define TAPPING_TERM 230
 
 #define PREVENT_STUCK_MODIFIERS
 

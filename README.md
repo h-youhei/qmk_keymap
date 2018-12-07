@@ -9,7 +9,7 @@ English|[日本語](README.ja.md)
 ## Base
 ```
  ------------------------------                     ------------------------------
-| Prnt | # | @ | ! | % | $ |   |                   |   | * | ( | ) | ^ | & |      |
+| Prnt | # | @ | ! | % | $ |   |                   |   | * | ( | ) | ^ | & |Clear |
 |  Scr | 3 | 2 | 1 | 5 | 4 |   |                   |   | 8 | 9 | 0 | 6 | 7 |      |
 |------------------------------|                   |------------------------------|
 |      | Q | C | L | P | V | E |                   | I | K | G | U | Y | Z |      |
@@ -36,10 +36,10 @@ English|[日本語](README.ja.md)
 ```
  ------------------------------                     ------------------------------
 |      |   |   |   |   |   |   |                   |   |   |   |   |   |   |      |
-|      |F4 |F3 |F2 |F1 |F5 |   |                   |   |F8 |F9 |F10|F6 |F7 |      |
+|      |F3 |F2 |F1 |F5 |F4 |   |                   |   |F8 |F9 |F10|F6 |F7 |      |
 |------------------------------|                   |------------------------------|
-|      |   |   |   |   |   |   |                   |   |   |Le |Ri |   |   |      |
-|      |   | 6 | 5 | 4 |   |   |                   |   |   |ft |ght|F11|F12|      |
+|      |   |   |   |   |Num|   |                   |   |   |Le |Ri |   |   |      |
+|      |   | 6 | 5 | 4 |Lk |   |                   |   |   |ft |ght|F11|F12|      |
 |--------------------------|   |                   |   |--------------------------|
 |      |   |   |   |   |   |___|                   |___|Ho |Do |   |   |   |      |
 |      | . | 3 | 2 | 1 | 0 |   |                   |   |me |wn |Up |End|App|      |
@@ -56,6 +56,18 @@ English|[日本語](README.ja.md)
                             | c | t |   | |   | v | c |
                              -----------   -----------
 ```
+
+## Simultaneous Modifier
+simultaneous tapping version of MOD-TAP.
+
+To use it, copy process_simultaneous.c/h and util_user.c/h, append it to SRC in rules.mk .
+
+To customize, read process_simultaneous.h .
+
+## Special Keys
+WinLck,CtrLck,AltLck,SftLck are modifier lock like CapsLock.
+
+Clear key is used to unlock modifier lock all at once.
 
 ## details
 IME key is used for toggle Input Method. Internally, it's assigned to KANA key.

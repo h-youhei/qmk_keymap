@@ -8,7 +8,8 @@ enum user_code {
 	KC_CTLLK,
 	KC_SFTLK,
 	KC_ALTLK,
-	KC_GUILK
+	KC_GUILK,
+	CLEAR
 };
 
 enum Layer {
@@ -29,7 +30,7 @@ enum Layer {
 #ifdef ENABLE_STABLE_LAYER
 #define STABLE DF(L_STABLE)
 #else
-#define STABLE KC_NO
+#define STABLE CLEAR
 #endif
 
 static uint8_t mod_locked = 0;
@@ -49,11 +50,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 			mod_locked ^= MOD_LCTL;
 			if(mod_locked & MOD_LCTL) {
 				register_code(KC_LCTL);
-				ergodox_right_led_3_on();
+				ergodox_right_led_1_on();
 			}
 			else {
 				unregister_code(KC_LCTL);
-				if(!mod_locked) ergodox_right_led_3_off();
+				if(!mod_locked) ergodox_right_led_1_off();
 			}
 		}
 		return false;
@@ -62,11 +63,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 			mod_locked ^= MOD_LSFT;
 			if(mod_locked & MOD_LSFT) {
 				register_code(KC_LSFT);
-				ergodox_right_led_3_on();
+				ergodox_right_led_1_on();
 			}
 			else {
 				unregister_code(KC_LSFT);
-				if(!mod_locked) ergodox_right_led_3_off();
+				if(!mod_locked) ergodox_right_led_1_off();
 			}
 		}
 		return false;
@@ -75,11 +76,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 			mod_locked ^= MOD_LALT;
 			if(mod_locked & MOD_LALT) {
 				register_code(KC_LALT);
-				ergodox_right_led_3_on();
+				ergodox_right_led_1_on();
 			}
 			else {
 				unregister_code(KC_LALT);
-				if(!mod_locked) ergodox_right_led_3_off();
+				if(!mod_locked) ergodox_right_led_1_off();
 			}
 		}
 		return false;
@@ -88,12 +89,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 			mod_locked ^= MOD_LGUI;
 			if(mod_locked & MOD_LGUI) {
 				register_code(KC_LGUI);
-				ergodox_right_led_3_on();
+				ergodox_right_led_1_on();
 			}
 			else {
 				unregister_code(KC_LGUI);
-				if(!mod_locked) ergodox_right_led_3_off();
+				if(!mod_locked) ergodox_right_led_1_off();
 			}
+		}
+		return false;
+	case CLEAR:
+		if(record->event.pressed) {
+			mod_locked = 0;
+			ergodox_right_led_1_off();
+			clear_mods();
 		}
 		return false;
 	default:
@@ -119,8 +127,8 @@ void matrix_scan_user(void) {
 void led_set_user(uint8_t usb_led) {
 	if(usb_led & (1<<USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
 	else ergodox_right_led_2_off();
-	if(usb_led & (1<<USB_LED_SCROLL_LOCK)) ergodox_right_led_1_on();
-	else ergodox_right_led_1_off();
+	// if(usb_led & (1<<USB_LED_SCROLL_LOCK)) ergodox_right_led_3_on();
+	// else ergodox_right_led_3_off();
 }
 
 /* TODO: open this function in upstream. */
@@ -181,7 +189,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[L_FN] = LAYOUT_ergodox(
 		// left hand
 		KC_NO, KC_F3, KC_F2, KC_F1, KC_F5, KC_F4, KC_NO,
-		KC_NO, KC_NO, KC_P6, KC_P5, KC_P4, KC_NO, KC_TRNS,
+		KC_NO, KC_NO, KC_P6, KC_P5, KC_P4, KC_NLCK, KC_TRNS,
 		KC_NO, KC_PDOT, KC_P3, KC_P2, KC_P1, KC_P0,
 		KC_NO, KC_NO, KC_P9, KC_P8, KC_P7, KC_P000, KC_TRNS,
 		KC_NO, KC_NO, KC_TRNS, KC_TRNS, KC_TRNS,
