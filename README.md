@@ -60,7 +60,11 @@ English|[日本語](README.ja.md)
 ## Simultaneous Modifier
 simultaneous tapping version of MOD-TAP.
 
-To use it, copy process_simultaneous.c/h and util_user.c/h, append it to SRC in rules.mk .
+To use it,<br>
+1. copy `process_simultaneous.c/h` and `util_user.c/h`, and append it to SRC in your `rules.mk`
+2. include `process_simultaneous.h` to your `keymap.c`
+3. call `process_simultaneous()` from `process_record_user()`
+4. call `matrix_scan_simultaneous()` from `matrix_scan_user()`
 
 To customize, read process_simultaneous.h .
 

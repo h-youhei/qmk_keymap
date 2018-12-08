@@ -69,10 +69,16 @@ bool is_simultaneous_key(uint16_t keycode);
   This function is used to determine which key is mod or layer and is tapping key;
   when simultaneous tapping that both keys are simultaneous_mod or simultaneous_layer.
   The one that has priority is treated mod or layer.
+  Default behavior:
+    shift has priority to others
+    if both key is not shift,
+    treat first released key as key the other as mod.
 */
 bool has_simultaneous_priority_to_a(uint16_t keycode_a, uint16_t keycode_b);
 
+/* call this function from process_record_user */
 bool process_simultaneous(uint16_t keycode, keyrecord_t *record);
+/* call this function from matrix_scan_user */
 void matrix_scan_simultaneous(void);
 
 #endif

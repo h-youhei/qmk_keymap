@@ -62,7 +62,11 @@
 ## 同時打鍵修飾キー
 タップと長押しで区別するタイプの多機能キーの同時打鍵版です。
 
-使用するにはprocess_simultaneous.c/h util_user.c/hをコピーして、rules.mkのSRCに追加してください。
+使用するには
+1. `process_simultaneous.c/h` `util_user.c/h`をコピーして、rules.mkのSRCに追加します。
+2. `keymap.c` に `process_simultaneous.h` をインクルードします。
+3. `process_record_user()` から `process_simultaneous()` を呼び出します。
+4. `matrix_scan_user()` から `matrix_scan_simultaneous()` を呼び出します。
 
 ## 特殊なキーの説明
 WinLck,CtrLck,AltLck,SftLckは修飾キーロックです。CapsLockのように、押すと再度押すまで修飾キーが押されたようになります。
