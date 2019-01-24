@@ -39,61 +39,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	case KC_P000:
 		if(record->event.pressed) {
 			for(uint8_t i=0; i<3; i++) {
-				// tap_code(KC_P0);
-				register_code(KC_P0);
-				unregister_code(KC_P0);
-			}
-		}
-		return false;
-	case KC_CTLLK:
-		if(record->event.pressed) {
-			mod_locked ^= MOD_LCTL;
-			if(mod_locked & MOD_LCTL) {
-				register_code(KC_LCTL);
-				ergodox_right_led_1_on();
-			}
-			else {
-				unregister_code(KC_LCTL);
-				if(!mod_locked) ergodox_right_led_1_off();
-			}
-		}
-		return false;
-	case KC_SFTLK:
-		if(record->event.pressed) {
-			mod_locked ^= MOD_LSFT;
-			if(mod_locked & MOD_LSFT) {
-				register_code(KC_LSFT);
-				ergodox_right_led_1_on();
-			}
-			else {
-				unregister_code(KC_LSFT);
-				if(!mod_locked) ergodox_right_led_1_off();
-			}
-		}
-		return false;
-	case KC_ALTLK:
-		if(record->event.pressed) {
-			mod_locked ^= MOD_LALT;
-			if(mod_locked & MOD_LALT) {
-				register_code(KC_LALT);
-				ergodox_right_led_1_on();
-			}
-			else {
-				unregister_code(KC_LALT);
-				if(!mod_locked) ergodox_right_led_1_off();
-			}
-		}
-		return false;
-	case KC_GUILK:
-		if(record->event.pressed) {
-			mod_locked ^= MOD_LGUI;
-			if(mod_locked & MOD_LGUI) {
-				register_code(KC_LGUI);
-				ergodox_right_led_1_on();
-			}
-			else {
-				unregister_code(KC_LGUI);
-				if(!mod_locked) ergodox_right_led_1_off();
+				tap_code(KC_P0);
 			}
 		}
 		return false;
@@ -125,10 +71,16 @@ void matrix_scan_user(void) {
 }
 
 void led_set_user(uint8_t usb_led) {
+	// I usually set num lock on, I prefer led is on while in unusual state.
+	// BUG:blink the led while suspend
+	// if(usb_led & (1<<USB_LED_NUM_LOCK)) ergodox_right_led_1_off();
+	// else ergodox_right_led_1_on();
+
 	if(usb_led & (1<<USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
 	else ergodox_right_led_2_off();
-	// if(usb_led & (1<<USB_LED_SCROLL_LOCK)) ergodox_right_led_3_on();
-	// else ergodox_right_led_3_off();
+
+	if(usb_led & (1<<USB_LED_SCROLL_LOCK)) ergodox_right_led_3_on();
+	else ergodox_right_led_3_off();
 }
 
 /* TODO: open this function in upstream. */
@@ -143,20 +95,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[L_BASE] = LAYOUT_ergodox(
 		// left hand
 		KC_PSCR, KC_3, KC_2, KC_1, KC_5, KC_4, KC_NO,
-		KC_MHEN, KC_Q, KC_C, KC_L, KC_P, KC_V, KC_ESC,
-		KC_SLSH, KC_O, KC_S, KC_R, KC_N, KC_H,
-		KC_NO, KC_X, KC_J, KC_MINS, KC_F, KC_B, KC_BSPC,
-		KC_GUILK, KC_CTLLK, LGUI_S(KC_GRV), LCTL_S(KC_BSLS), LALT_S(KC_EQL),
+		KC_MHEN, KC_Q, KC_C, KC_L, KC_P, KC_J, KC_CAPS,
+		KC_SLSH, KC_O, KC_S, KC_R, KC_N, KC_M,
+		KC_MCLK, KC_X, KC_V, KC_MINS, KC_H, KC_B, KC_BSPC,
+		KC_RCLK, KC_LCLK, LGUI_S(KC_GRV), LCTL_S(KC_BSLS), LALT_S(KC_EQL),
 		// thumb
 		KC_RCLK, KC_LCLK,
 		KC_MCLK,
-		LSFT_S(KC_SPC), FN_S(KC_ENT), KC_CAPS,
+		LSFT_S(KC_SPC), FN_S(KC_ENT), KC_ESC,
 		// right hand
 		KC_NO, KC_8, KC_9, KC_0, KC_6, KC_7, STABLE,
-		KC_INS, KC_K, KC_G, KC_U, KC_Y, KC_Z, KC_HENK,
-		KC_D, KC_T, KC_E, KC_I, KC_A, KC_SCLN,
-		KC_DEL, KC_W, KC_M, KC_COMM, KC_DOT, KC_QUOT, KC_NO,
-		RALT_S(KC_LBRC), RCTL_S(KC_RBRC), RGUI_S(KC_PAUS), KC_ALTLK, KC_SFTLK,
+		KC_INS, KC_K, KC_F, KC_U, KC_Y, KC_Z, KC_HENK,
+		KC_G, KC_T, KC_E, KC_I, KC_A, KC_SCLN,
+		KC_DEL, KC_W, KC_D, KC_COMM, KC_DOT, KC_QUOT, KC_LCLK,
+		RALT_S(KC_LBRC), RCTL_S(KC_RBRC), RGUI_S(KC_PAUS), KC_MCLK, KC_RCLK,
 		// thumb
 		KC_WBAK, KC_WFWD,
 		KC_WHOM,

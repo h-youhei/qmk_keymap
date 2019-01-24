@@ -489,9 +489,7 @@ void tap_simultaneous() {
 }
 
 void tap_simultaneous_mod(uint16_t keycode) {
-	// tap_code(get_key_from_keycode(keycode));
-	register_code(get_key_from_keycode(keycode));
-	unregister_code(get_key_from_keycode(keycode));
+	tap_code(get_key_from_keycode(keycode));
 }
 
 bool is_simultaneous(simultaneous_t simultaneous_mod) {
