@@ -1,4 +1,4 @@
-SRC += util_user.c process_simultaneous.c
+SRC += util_user.c kana.c
 # KEY_LOCK_ENABLE = yes
 ### Overwrite ErgodoxEZ's default settings ###
 # BOOTMAGIC_ENABLE = no

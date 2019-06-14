@@ -2,17 +2,38 @@
 #include "util_user.h"
 #include "action.h"
 
-enum user_code {
-	CLEAR = SAFE_RANGE,
-	DF_NUM,
-};
+#include "kana.h"
+#include "my.h"
 
 enum Layer {
 	L_BASE,
 #ifdef ENABLE_STABLE_LAYER
 	L_STABLE,
 #endif
+	L_KANA,
 	L_FN,
+	L_KANA_A,
+	L_KANA_I,
+	L_KANA_U,
+	L_KANA_E,
+	L_KANA_O,
+	L_KANA_YA,
+	L_KANA_YU,
+	L_KANA_YO,
+	L_KANA_YE,
+	L_KANA_SIGN,
+	L_KANA_PARN,
+	L_KANA_K,
+	L_KANA_S,
+	L_KANA_T,
+	L_KANA_N,
+	L_KANA_H,
+	L_KANA_M,
+	L_KANA_R,
+	L_KANA_W,
+	L_KANA_F,
+	L_KANA_Q,
+	L_KANA_TH,
 };
 #define FN_T(kc) LT(L_FN, kc)
 
@@ -27,28 +48,234 @@ enum Layer {
 #define STABLE CLEAR
 #endif
 
+void numlock_on(void) {
+	if(IS_HOST_LED_OFF(USB_LED_NUM_LOCK)) {
+		tap_code(KC_NLCK);
+	}
+}
+void numlock_off(void) {
+	if(IS_HOST_LED_ON(USB_LED_NUM_LOCK)) {
+		tap_code(KC_NLCK);
+	}
+}
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+uint8_t get_kana_layer_from_keycode(uint16_t keycode) {
 	switch(keycode) {
-	case CLEAR:
-		if(record->event.pressed) {
-			clear_mods();
-			layer_clear();
-		}
-		return false;
+	case KANA_A_T_RU:
+		return L_KANA_A;
+	case KANA_I_T_I:
+		return L_KANA_I;
+	case KANA_U_T_U:
+		return L_KANA_U;
+	case KANA_E_T_NN:
+		return L_KANA_E;
+	case KANA_O_T_NO:
+		return L_KANA_O;
+	case KANA_YA_T_KU:
+		return L_KANA_YA;
+	case KANA_YU_T_DE:
+		return L_KANA_YU;
+	case KANA_YO_T_COMM:
+		return L_KANA_YO;
+	case KANA_YE_T_XTU:
+		return L_KANA_YE;
+	case KANA_SIGN_T_GA:
+		return L_KANA_SIGN;
+	case KANA_PARN_T_NI:
+		return L_KANA_PARN;
+	case KANA_K_T_KA:
+		return L_KANA_K;
+	case KANA_S_T_SI:
+		return L_KANA_S;
+	case KANA_T_T_TO:
+		return L_KANA_T;
+	case KANA_N_T_NA:
+		return L_KANA_N;
+	case KANA_H_T_HA:
+		return L_KANA_H;
+	case KANA_M_T_TE:
+		return L_KANA_M;
+	case KANA_R_T_TA:
+		return L_KANA_R;
+	case KANA_W_T_KO:
+		return L_KANA_W;
+	case KANA_F_T_SU:
+		return L_KANA_F;
+	case KANA_Q_T_MO:
+		return L_KANA_Q;
+	case KANA_TH_T_MA:
+		return L_KANA_TH;
+	default:
+		return 0;
+	}
+}
+
+void SEND_STRING_KANA_LAYER(uint8_t layer) {
+	switch(layer) {
+	case L_KANA_A:
+		SEND_STRING("ru");
+		break;
+	case L_KANA_I:
+		SEND_STRING("i");
+		break;
+	case L_KANA_U:
+		SEND_STRING("u");
+		break;
+	case L_KANA_E:
+		SEND_STRING("nn");
+		break;
+	case L_KANA_O:
+		SEND_STRING("no");
+		break;
+	case L_KANA_YA:
+		SEND_STRING("ku");
+		break;
+	case L_KANA_YU:
+		SEND_STRING("de");
+		break;
+	case L_KANA_YO:
+		tap_code(KC_COMM);
+		break;
+	case L_KANA_YE:
+		SEND_STRING("xtu");
+		break;
+	case L_KANA_SIGN:
+		SEND_STRING("ga");
+		break;
+	case L_KANA_PARN:
+		SEND_STRING("ni");
+		break;
+	case L_KANA_K:
+		SEND_STRING("ka");
+		break;
+	case L_KANA_S:
+		SEND_STRING("si");
+		break;
+	case L_KANA_T:
+		SEND_STRING("to");
+		break;
+	case L_KANA_N:
+		SEND_STRING("na");
+		break;
+	case L_KANA_H:
+		SEND_STRING("ha");
+		break;
+	case L_KANA_M:
+		SEND_STRING("te");
+		break;
+	case L_KANA_R:
+		SEND_STRING("ta");
+		break;
+	case L_KANA_W:
+		SEND_STRING("ko");
+		break;
+	case L_KANA_F:
+		SEND_STRING("su");
+		break;
+	case L_KANA_Q:
+		SEND_STRING("mo");
+		break;
+	case L_KANA_TH:
+		SEND_STRING("ma");
+		break;
 	default:
 		break;
 	}
+}
 
-#ifdef ENABLE_STABLE_LAYER
-	uint8_t layer = biton32(default_layer_state);
-	if(layer == L_STABLE) return true;
-#endif
-	return true;
+// prev_keycode is used to simulate tapping layer.
+// if current keycode is equal to prev keycode,
+// then it is tapped.
+static uint16_t prev_keycode = KC_NO;
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+	// In order to save prev_keycode, save return value, then return it later.
+	bool to_continue = true;
+	keyevent_t event = record->event;
+	switch(keycode) {
+	case CLEAR:
+		if(event.pressed) {
+			clear_mods();
+			layer_clear();
+		}
+		to_continue = false;
+		break;
+	case IME:
+		if(event.pressed) {
+			uint8_t layer = biton32(default_layer_state);
+			if(layer == L_BASE) {
+				numlock_on();
+			}
+			else if(layer == L_KANA) {
+				numlock_off();
+			}
+			tap_code(KC_KANA);
+		}
+		to_continue = false;
+		break;
+	case KANA_ROLL:
+		if(event.pressed) {
+			uint8_t layer = biton32(layer_state);
+			SEND_STRING_KANA_LAYER(layer);
+			uint16_t key = keymap_key_to_keycode(L_KANA, event.key);
+			if(in_range(key, KANA_A_T_RU, KANA_TH_T_MA)) {
+				SEND_STRING_KANA_LAYER(get_kana_layer_from_keycode(key));
+			}
+			else {
+				process_record_kana(key, record);
+			}
+		}
+		to_continue = false;
+		break;
+	default:
+		break;
+	}
+	if(in_range(keycode, KANA_A_T_RU, KANA_TH_T_MA)) {
+		to_continue = false;
+		if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
+			if(event.pressed) {
+				tap_code(keymap_key_to_keycode(0, event.key));
+			}
+			else {
+				uint8_t layer = get_kana_layer_from_keycode(keycode);
+				layer_off(layer);
+			}
+		}
+		else {
+			uint8_t layer = get_kana_layer_from_keycode(keycode);
+			if(event.pressed) {
+				layer_on(layer);
+			}
+			else {
+				layer_off(layer);
+				if(keycode == prev_keycode) {
+					SEND_STRING_KANA_LAYER(layer);
+				}
+			}
+		}
+	}
+
+	prev_keycode = keycode;
+	if(to_continue) {
+		#ifdef ENABLE_STABLE_LAYER
+			uint8_t layer = biton32(default_layer_state);
+			if(layer == L_STABLE) return true;
+		#endif
+		return process_record_kana(keycode, record);
+	}
+	else {
+		return false;
+	}
 }
 
 void led_set_user(uint8_t usb_led) {
 	ergodox_led_all_set(LED_BRIGHTNESS_LO);
+
+	// use Num_Lock to recognize that
+	// modal editor change ime state
+	if(IS_LED_ON(usb_led, USB_LED_NUM_LOCK)) {
+		default_layer_set(1UL << L_KANA);
+	}
+	else default_layer_set(1UL << L_BASE);
 
 	if(IS_LED_ON(usb_led, USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
 	else ergodox_right_led_2_off();
@@ -57,14 +284,24 @@ void led_set_user(uint8_t usb_led) {
 	else ergodox_right_led_3_off();
 }
 
-#ifdef ENABLE_STABLE_LAYER
-uint32_t default_layer_state_set_user(uint32_t state) {
+layer_state_t default_layer_state_set_user(layer_state_t state) {
+	ergodox_led_all_set(LED_BRIGHTNESS_LO);
 	uint8_t layer = biton32(state);
-	if(layer == L_STABLE) ergodox_right_led_1_on();
+#ifdef ENABLE_STABLE_LAYER
+// 	if(layer == L_STABLE) ergodox_right_led_1_on();
+#endif
+	if(layer == L_KANA) ergodox_right_led_1_on();
 	else ergodox_right_led_1_off();
 	return state;
 }
-#endif
+
+void suspend_power_down_user(void) {
+	ergodox_led_all_off();
+}
+
+void suspend_wakeup_init_user(void) {
+	default_layer_state_set_user(default_layer_state);
+}
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[L_BASE] = LAYOUT_ergodox(
@@ -79,7 +316,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_MCLK,
 		LSFT_T(KC_SPC), KC_ENT, KC_ESC,
 		// right hand
-		KC_LBRC, KC_8, RCTL_T(KC_9), RALT_T(KC_0), RGUI_T(KC_6), FN_T(KC_7), CLEAR,
+		KC_LBRC, KC_8, RCTL_T(KC_9), RALT_T(KC_0), RGUI_T(KC_6), FN_T(KC_7), STABLE,
 		KC_RBRC, KC_Y, KC_I, KC_O, KC_G, KC_Z, KC_GRV,
 		KC_U, KC_E, KC_A, KC_D, KC_P, KC_SCLN,
 		KC_DEL, KC_MINS, KC_COMM, KC_DOT, KC_QUOT, KC_J, KC_CAPS,
@@ -87,7 +324,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_PGDN, KC_PGUP,
 		KC_WBAK,
-		KC_KANA, KC_TAB, RSFT_T(KC_SPC)
+		IME, KC_TAB, RSFT_T(KC_SPC)
 	),
 #ifdef ENABLE_STABLE_LAYER
 	[L_STABLE] = LAYOUT_ergodox(
@@ -113,6 +350,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_TRNS, KC_TRNS, RSFT_T(KC_SPC)
 	),
 #endif
+	[L_KANA] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_RA, KANA_Q_T_MO, KANA_K_T_KA, KANA_N_T_NA, KANA_SA, KC_TRNS,
+		KC_TRNS, KANA_F_T_SU, KANA_W_T_KO, KANA_S_T_SI, KANA_T_T_TO, KANA_M_T_TE,
+		KC_TRNS, KANA_RI, KANA_KI, KANA_H_T_HA, KANA_R_T_TA, KANA_TH_T_MA, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		LSFT_T(KC_SPC), KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_TU, KANA_E_T_NN, KANA_O_T_NO, KANA_PARN_T_NI, KANA_WO, KC_TRNS,
+		KANA_YA_T_KU, KANA_U_T_U, KANA_I_T_I, KANA_YU_T_DE, KANA_SIGN_T_GA, KC_TRNS,
+		KC_TRNS, KANA_YE_T_XTU, KANA_A_T_RU, KANA_YO_T_COMM, KC_DOT, KANA_RE, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, RSFT_T(KC_SPC)
+	),
 	[L_FN] = LAYOUT_ergodox(
 		// left hand
 		KC_NO, FN_T(KC_F4), LGUI_T(KC_F5), LALT_T(KC_F1), LCTL_T(KC_F2), KC_F3, KC_NO,
@@ -130,6 +389,490 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_NO, KC_APP, KC_SLCK, KC_PAUSE, KC_NO, KC_NO,
 		KC_TRNS, KC_NO, KC_RCTL, KC_RALT, KC_RGUI, KC_RSFT, KC_NO,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_NO, KC_NO,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_KANA, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_A] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_GWA, KANA_GA, KANA_A, KC_NO, KC_TRNS,
+		KC_TRNS, KANA_VA, KANA_WHA, KANA_ZA, KANA_DA, KANA_XA,
+		KC_TRNS, KC_NO, KC_NO, KANA_BA, KANA_PA, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_MHEN, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_I] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_GWI, KANA_GI, KANA_I, KC_NO, KC_TRNS,
+		KC_TRNS, KANA_VI, KANA_WI, KANA_ZI, KANA_DI, KANA_XI,
+		KC_TRNS, KC_NO, KC_NO, KANA_BI, KANA_PI, KANA_DHI, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_F6, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_U] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_GU, KANA_GU, KANA_U, KC_NO, KC_TRNS,
+		KC_TRNS, KANA_VU, KC_NO, KANA_ZU, KANA_DU, KANA_XU,
+		KC_TRNS, KC_NO, KC_NO, KANA_BU, KANA_PU, KANA_DWU, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_F7, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_E] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_GWE, KANA_GE, KANA_E, KC_NO, KC_TRNS,
+		KC_TRNS, KANA_VE, KANA_WE, KANA_ZE, KANA_DE, KANA_XE,
+		KC_TRNS, KC_NO, KC_NO, KANA_BE, KANA_PE, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_O] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_GWO, KANA_GO, KANA_O, KC_NO, KC_TRNS,
+		KC_TRNS, KANA_VO, KANA_WHO, KANA_ZO, KANA_DO, KANA_XO,
+		KC_TRNS, KC_NO, KC_NO, KANA_BO, KANA_PO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_YA] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KANA_GYA, KANA_YA, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KANA_JA, KANA_DYA, KANA_XYA,
+		KC_TRNS, KC_NO, KC_NO, KANA_BYA, KANA_PYA, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_YU] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KANA_GYU, KANA_YU, KC_NO, KC_TRNS,
+		KC_TRNS, KANA_VYU, KC_NO, KANA_JU, KANA_DYU, KANA_XYU,
+		KC_TRNS, KC_NO, KC_NO, KANA_BYU, KANA_PYU, KANA_DHU, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_YO] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KANA_GYO, KANA_YO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KANA_JO, KANA_DYO, KANA_XYO,
+		KC_TRNS, KC_NO, KC_NO, KANA_BYO, KANA_PYO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_YE] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KC_NO, KANA_YE, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KANA_JE, KANA_DYE, KC_NO,
+		KC_TRNS, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_SIGN] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KANA_ZL, KC_MINS, KANA_XA,
+		KC_TRNS, KC_NO, KC_NO, KANA_ZDOT, KANA_ZSLSH, KANA_TSA, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_PARN] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KC_NO, KANA_ZLBRC, KANA_ZRBRC, KC_NO,
+		KC_TRNS, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KC_TRNS,
+		KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+        KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_K] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_KE, KANA_KO, KC_NO, KC_NO, KC_TRNS,
+		KANA_KYA, KANA_KU, KANA_KI, KANA_KYU, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_KA, KANA_KYO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_KANA
+	),
+	[L_KANA_S] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_SE, KANA_SO, KC_NO, KC_NO, KC_TRNS,
+		KANA_SYA, KANA_SU, KANA_SI, KANA_SYU, KC_NO, KC_TRNS,
+		KC_TRNS, KANA_SYE, KANA_SA, KANA_SYO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_F9
+	),
+	[L_KANA_T] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_TE, KANA_TO, KC_NO, KC_NO, KC_TRNS,
+		KANA_TYA, KANA_TU, KANA_TI, KANA_TYU, KC_NO, KC_TRNS,
+		KC_TRNS, KANA_TYE, KANA_TA, KANA_TYO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_F10
+	),
+	[L_KANA_N] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_NE, KANA_NO, KC_NO, KC_NO, KC_TRNS,
+		KANA_NYA, KANA_NU, KANA_NI, KANA_NYU, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_NA, KANA_NYO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_H] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_HE, KANA_HO, KC_NO, KC_NO, KC_TRNS,
+		KANA_HYA, KANA_HU, KANA_HI, KANA_HYU, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_HA, KANA_HYO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_M] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_ME, KANA_MO, KC_NO, KC_NO, KC_TRNS,
+		KANA_MYA, KANA_MU, KANA_MI, KANA_MYU, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_MA, KANA_MYO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_R] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_RE, KANA_RO, KC_NO, KC_NO, KC_TRNS,
+		KANA_RYA, KANA_RU, KANA_RI, KANA_RYU, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_RA, KANA_RYO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_HENK
+	),
+	[L_KANA_W] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_WYE, KANA_WO, KC_NO, KC_NO, KC_TRNS,
+		KANA_XWA, KC_NO, KANA_WYI, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_WA, KC_NO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_F] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_FE, KANA_FO, KC_NO, KC_NO, KC_TRNS,
+		KC_NO, KANA_HU, KANA_FI, KANA_FYU, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_FA, KC_NO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_Q] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_QE, KANA_QO, KC_NO, KC_NO, KC_TRNS,
+		KANA_XKA, KANA_KU, KANA_QI, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KANA_XKE, KANA_QA, KC_NO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
+	),
+	[L_KANA_TH] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL,
+		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, CLEAR,
+		KC_TRNS, KC_NO, KANA_TSE, KANA_TSO, KC_NO, KC_NO, KC_TRNS,
+		KC_NO, KANA_TWU, KANA_THI, KANA_THU, KC_NO, KC_TRNS,
+		KC_TRNS, KC_NO, KANA_TSA, KC_NO, KC_NO, KC_NO, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
