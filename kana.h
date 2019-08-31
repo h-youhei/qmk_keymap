@@ -3,6 +3,8 @@
 #include "action.h" //keyrecord_t
 #include "my.h" //KANA_RANGE
 
+bool is_kana(uint16_t keycode);
+void tap_kana(uint16_t kana, keyevent_t event);
 bool process_record_kana(uint16_t keycode, keyrecord_t *record);
 
 enum kana_code {
@@ -171,6 +173,8 @@ enum kana_code {
 	KANA_WYI, //ゐ
 	KANA_WYE, //ゑ
 	// 記号
+	KANA_COMM,
+	KANA_DOT,
 	KANA_ZSLSH, //・
 	KANA_ZDOT, //…
 	KANA_ZCOMM, //‥

@@ -3,38 +3,9 @@
 #include "action.h"
 
 #include "kana.h"
+#include "kana_chord.h"
 #include "my.h"
 
-enum Layer {
-	L_BASE,
-#ifdef ENABLE_STABLE_LAYER
-	L_STABLE,
-#endif
-	L_KANA,
-	L_FN,
-	L_KANA_A,
-	L_KANA_I,
-	L_KANA_U,
-	L_KANA_E,
-	L_KANA_O,
-	L_KANA_YA,
-	L_KANA_YU,
-	L_KANA_YO,
-	L_KANA_YE,
-	L_KANA_SIGN,
-	L_KANA_PARN,
-	L_KANA_K,
-	L_KANA_S,
-	L_KANA_T,
-	L_KANA_N,
-	L_KANA_H,
-	L_KANA_M,
-	L_KANA_R,
-	L_KANA_W,
-	L_KANA_F,
-	L_KANA_Q,
-	L_KANA_TH,
-};
 #define FN_T(kc) LT(L_FN, kc)
 
 // click (left, middle, right)
@@ -59,137 +30,8 @@ void numlock_off(void) {
 	}
 }
 
-uint8_t get_kana_layer_from_keycode(uint16_t keycode) {
-	switch(keycode) {
-	case KANA_A_T_RU:
-		return L_KANA_A;
-	case KANA_I_T_I:
-		return L_KANA_I;
-	case KANA_U_T_U:
-		return L_KANA_U;
-	case KANA_E_T_NN:
-		return L_KANA_E;
-	case KANA_O_T_NO:
-		return L_KANA_O;
-	case KANA_YA_T_XTU:
-		return L_KANA_YA;
-	case KANA_YU_T_KU:
-		return L_KANA_YU;
-	case KANA_YO_T_COMM:
-		return L_KANA_YO;
-	case KANA_YE_T_DE:
-		return L_KANA_YE;
-	case KANA_SIGN_T_GA:
-		return L_KANA_SIGN;
-	case KANA_PARN_T_NI:
-		return L_KANA_PARN;
-	case KANA_K_T_KA:
-		return L_KANA_K;
-	case KANA_S_T_SI:
-		return L_KANA_S;
-	case KANA_T_T_TO:
-		return L_KANA_T;
-	case KANA_N_T_NA:
-		return L_KANA_N;
-	case KANA_H_T_HA:
-		return L_KANA_H;
-	case KANA_M_T_MA:
-		return L_KANA_M;
-	case KANA_R_T_TA:
-		return L_KANA_R;
-	case KANA_W_T_TE:
-		return L_KANA_W;
-	case KANA_F_T_SU:
-		return L_KANA_F;
-	case KANA_Q_T_MO:
-		return L_KANA_Q;
-	case KANA_TH_T_KO:
-		return L_KANA_TH;
-	default:
-		return 0;
-	}
-}
 
-void SEND_STRING_KANA_LAYER(uint8_t layer) {
-	switch(layer) {
-	case L_KANA_A:
-		SEND_STRING("ru");
-		break;
-	case L_KANA_I:
-		SEND_STRING("i");
-		break;
-	case L_KANA_U:
-		SEND_STRING("u");
-		break;
-	case L_KANA_E:
-		SEND_STRING("nn");
-		break;
-	case L_KANA_O:
-		SEND_STRING("no");
-		break;
-	case L_KANA_YA:
-		SEND_STRING("xtu");
-		break;
-	case L_KANA_YU:
-		SEND_STRING("ku");
-		break;
-	case L_KANA_YO:
-		tap_code(KC_COMM);
-		break;
-	case L_KANA_YE:
-		SEND_STRING("de");
-		break;
-	case L_KANA_SIGN:
-		SEND_STRING("ga");
-		break;
-	case L_KANA_PARN:
-		SEND_STRING("ni");
-		break;
-	case L_KANA_K:
-		SEND_STRING("ka");
-		break;
-	case L_KANA_S:
-		SEND_STRING("si");
-		break;
-	case L_KANA_T:
-		SEND_STRING("to");
-		break;
-	case L_KANA_N:
-		SEND_STRING("na");
-		break;
-	case L_KANA_H:
-		SEND_STRING("ha");
-		break;
-	case L_KANA_M:
-		SEND_STRING("ma");
-		break;
-	case L_KANA_R:
-		SEND_STRING("ta");
-		break;
-	case L_KANA_W:
-		SEND_STRING("te");
-		break;
-	case L_KANA_F:
-		SEND_STRING("su");
-		break;
-	case L_KANA_Q:
-		SEND_STRING("mo");
-		break;
-	case L_KANA_TH:
-		SEND_STRING("ko");
-		break;
-	default:
-		break;
-	}
-}
-
-// prev_keycode is used to simulate tapping layer.
-// if current keycode is equal to prev keycode,
-// then it is tapped.
-static uint16_t prev_keycode = KC_NO;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-	// In order to save prev_keycode, save return value, then return it later.
-	bool to_continue = true;
 	keyevent_t event = record->event;
 	switch(keycode) {
 	case CLEAR:
@@ -197,7 +39,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 			clear_mods();
 			layer_clear();
 		}
-		to_continue = false;
+		return false;
 		break;
 	case IME:
 		if(event.pressed) {
@@ -212,61 +54,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 				tap_code(KC_KANA);
 			}
 		}
-		to_continue = false;
-		break;
-	case KANA_ROLL:
-		if(event.pressed) {
-			uint8_t layer = biton32(layer_state);
-			SEND_STRING_KANA_LAYER(layer);
-			uint16_t key = keymap_key_to_keycode(L_KANA, event.key);
-			if(in_range(key, KANA_A_T_RU, KANA_TH_T_KO)) {
-				SEND_STRING_KANA_LAYER(get_kana_layer_from_keycode(key));
-			}
-			else {
-				process_record_kana(key, record);
-			}
-		}
-		to_continue = false;
+		return false;
 		break;
 	default:
 		break;
 	}
-	if(in_range(keycode, KANA_A_T_RU, KANA_TH_T_KO)) {
-		to_continue = false;
-		if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
-			if(event.pressed) {
-				tap_code(keymap_key_to_keycode(0, event.key));
-			}
-			else {
-				uint8_t layer = get_kana_layer_from_keycode(keycode);
-				layer_off(layer);
-			}
-		}
-		else {
-			uint8_t layer = get_kana_layer_from_keycode(keycode);
-			if(event.pressed) {
-				layer_on(layer);
-			}
-			else {
-				layer_off(layer);
-				if(keycode == prev_keycode) {
-					SEND_STRING_KANA_LAYER(layer);
-				}
-			}
-		}
-	}
-
-	prev_keycode = keycode;
-	if(to_continue) {
-		#ifdef ENABLE_STABLE_LAYER
-			uint8_t layer = biton32(default_layer_state);
-			if(layer == L_STABLE) return true;
-		#endif
-		return process_record_kana(keycode, record);
-	}
-	else {
-		return false;
-	}
+	return process_kana(keycode, record);
 }
 
 void led_set_user(uint8_t usb_led) {
@@ -319,9 +112,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		LSFT_T(KC_SPC), KC_ENT, KC_ESC,
 		// right hand
 		KC_LBRC, KC_8, RCTL_T(KC_9), RALT_T(KC_0), RGUI_T(KC_6), FN_T(KC_7), STABLE,
-		KC_RBRC, KC_Y, KC_U, KC_O, KC_K, KC_QUOT, KC_GRV,
+		KC_RBRC, KC_DOT, KC_U, KC_O, KC_MINS, KC_QUOT, KC_GRV,
 		KC_COMM, KC_I, KC_A, KC_P, KC_G, KC_SCLN,
-		KC_DEL, KC_DOT, KC_E, KC_D, KC_MINS, KC_Z, KC_CAPS,
+		KC_DEL, KC_Y, KC_E, KC_D, KC_K, KC_Z, KC_CAPS,
 		KC_LEFT, KC_RGHT, KC_END, KC_NO, KC_NO,
 		// thumb
 		KC_PGDN, KC_PGUP,
@@ -355,9 +148,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[L_KANA] = LAYOUT_ergodox(
 		// left hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KANA_RA, KANA_Q_T_MO, KANA_K_T_KA, KANA_N_T_NA, KANA_SA, KC_TRNS,
-		KC_TRNS, KANA_F_T_SU, KANA_TH_T_KO, KANA_S_T_SI, KANA_T_T_TO, KANA_W_T_TE,
-		KC_TRNS, KANA_RI, KANA_KI, KANA_H_T_HA, KANA_R_T_TA, KANA_M_T_MA, KC_TRNS,
+		KC_TRNS, KANA_RA, KANA_Q_T(KANA_MO), KANA_K_T(KANA_KA), KANA_N_T(KANA_NA), KANA_SA, KC_TRNS,
+		KC_TRNS, KANA_F_T(KANA_SU), KANA_TH_T(KANA_KO), KANA_S_T(KANA_SI), KANA_T_T(KANA_TO), KANA_W_T(KANA_TE),
+		KC_TRNS, KANA_RI, KANA_KI, KANA_H_T(KANA_HA), KANA_R_T(KANA_TA), KANA_M_T(KANA_MA), KC_TRNS,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		// thumb
 		KC_TRNS, KC_TRNS,
@@ -365,9 +158,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_TRNS, KC_TRNS, KC_TRNS,
 		// right hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
-		KC_TRNS, KANA_TU, KANA_E_T_NN, KANA_O_T_NO, KANA_PARN_T_NI, KANA_WO, KC_TRNS,
-		KANA_YU_T_KU, KANA_U_T_U, KANA_I_T_I, KANA_YE_T_DE, KANA_SIGN_T_GA, KC_MINS,
-		KC_TRNS, KANA_YA_T_XTU, KANA_A_T_RU, KANA_YO_T_COMM, KC_DOT, KANA_RE, KC_TRNS,
+		KC_TRNS, KANA_TU, KANA_E_T(KANA_NN), KANA_O_T(KANA_NO), KANA_NI, KANA_WO, KC_TRNS,
+		KANA_YU_T(KANA_KU), KANA_U_T(KANA_U), KANA_I_T(KANA_I), KANA_YE_T(KANA_DE), KANA_GA, KC_MINS,
+		KC_TRNS, KANA_YA_T(KANA_XTU), KANA_A_T(KANA_RU), KANA_YO_T(KANA_COMM), KC_DOT, KANA_RE, KC_TRNS,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		// thumb
 		KC_TRNS, KC_TRNS,

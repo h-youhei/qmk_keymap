@@ -6,8 +6,21 @@
 #include "util_user.h" //in_range
 #include "kana.h"
 
+bool is_kana(uint16_t keycode) {
+	return in_range(keycode, KANA_A, KANA_ZRBRC);
+}
+
+void tap_kana(uint16_t kana, keyevent_t event) {
+	process_record_kana(kana, &(keyrecord_t){
+		// .tap = (tap_t){},
+		.event.key = event.key,
+		.event.time = event.time,
+		.event.pressed = true
+	});
+}
+
 bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
-	if(!in_range(keycode, KANA_A, KANA_ZRBRC)) return true;
+	if(!is_kana(keycode)) return true;
 
 	keyevent_t event = record->event;
 	if(event.pressed) {
@@ -507,6 +520,14 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 					SEND_STRING("wye");
 					break;
 				// 記号
+				case KANA_COMM:
+					tap_code(KC_COMM);
+					tap_code(KC_ENT);
+					break;
+				case KANA_DOT:
+					tap_code(KC_DOT);
+					tap_code(KC_ENT);
+					break;
 				case KANA_ZSLSH:
 					SEND_STRING("z/");
 					break;

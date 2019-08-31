@@ -2,31 +2,19 @@
 
 #include "quantum_keycodes.h"
 
+enum Layer {
+	L_BASE,
+#ifdef ENABLE_STABLE_LAYER
+	L_STABLE,
+#endif
+	L_KANA,
+	L_FN,
+	KANA_LAYER_RANGE,
+};
+
 enum user_code {
 	CLEAR = SAFE_RANGE,
 	IME,
-	KANA_A_T_RU,
-	KANA_I_T_I,
-	KANA_U_T_U,
-	KANA_E_T_NN,
-	KANA_O_T_NO,
-	KANA_YA_T_KU,
-	KANA_YU_T_DE,
-	KANA_YO_T_COMM,
-	KANA_YE_T_XTU,
-	KANA_SIGN_T_GA,
-	KANA_PARN_T_NI,
-	KANA_K_T_KA,
-	KANA_S_T_SI,
-	KANA_T_T_TO,
-	KANA_N_T_NA,
-	KANA_H_T_HA,
-	KANA_M_T_TE,
-	KANA_R_T_TA,
-	KANA_W_T_KO,
-	KANA_F_T_SU,
-	KANA_Q_T_MO,
-	KANA_TH_T_MA,
 	KANA_ROLL,
 	KANA_RANGE,
 };
