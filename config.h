@@ -6,7 +6,6 @@
 #undef TAPPING_TERM
 #define TAPPING_TERM 230
 
-#define DEBOUNCING_DELAY 20
 
 #define NO_ACTION_FUNCTION
 #define NO_ACTION_MACRO
@@ -14,6 +13,7 @@
 
 // #define ENABLE_STABLE_LAYER
 
+#define TAPPING_FORCE_HOLD
 #define PERMISSIVE_HOLD
 
 #endif
