@@ -5,10 +5,10 @@
 #include "kana.h"
 
 bool process_kana(uint16_t keycode, keyrecord_t *record);
-
+void matrix_scan_kana(void);
 // used for avoiding shift remaining
 #ifndef SHIFTING_DELAY
-#define SHIFTING_DELAY 30
+#define SHIFTING_DELAY 100
 #endif
 
 enum kana_layer {

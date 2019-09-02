@@ -3,11 +3,14 @@
 
 #include "keymap.h" // keymap_key_to_keycode
 #include "action_layer.h" // default_layer_state
+#include "timer.h" // timer_elapsed
 #include "nodebug.h"
 #include <stddef.h>
 
 static keyevent_t held_as_layer;
 static bool is_tapping = false;
+static keyevent_t waiting;
+static bool await_shift_delay = false;
 
 static uint16_t get_kana_from_keycode(uint16_t keycode);
 static layer_state_t get_kana_layer_from_keycode(uint16_t keycode);
@@ -15,18 +18,33 @@ static void process_kana_chord(uint16_t keycode, keyrecord_t *record);
 static bool is_kana_chord(uint16_t keycode);
 
 bool process_kana(uint16_t keycode, keyrecord_t *record) {
+	keyevent_t event = record->event;
 	if(biton32(default_layer_state) == L_KANA) {
 		if(is_kana_chord(keycode)) {
 			process_kana_chord(keycode, record);
 			return false;
 		}
-		is_tapping = false;
-		if(is_kana(keycode)) {
-			process_record_kana(keycode, record);
+		else if(is_kana(keycode)) {
+			if(event.pressed) {
+				if(is_tapping || await_shift_delay) {
+					await_shift_delay = true;
+					is_tapping = false;
+					waiting = event;
+				}
+				else process_record_kana(keycode, record);
+			}
+			else {
+				if(await_shift_delay) {
+					await_shift_delay = false;
+					process_record(&(keyrecord_t) {
+						.event = waiting
+					});
+				}
+			}
 			return false;
 		}
 		else if(keycode == KANA_ROLL) {
-			keyevent_t event = record->event;
+			is_tapping = false;
 			if(event.pressed) {
 				// first key
 				uint16_t keycode = keymap_key_to_keycode(L_KANA, held_as_layer.key);
@@ -55,13 +73,30 @@ void process_kana_chord(uint16_t keycode, keyrecord_t *record) {
 	}
 	else {
 		layer_off(layer);
-		if(is_tapping) {
+		if(is_tapping || await_shift_delay) {
 			uint16_t kana = get_kana_from_keycode(keycode);
 			tap_kana(kana, event);
+			is_tapping = false;
+		}
+		if(await_shift_delay) {
+			await_shift_delay = false;
+			process_record(&(keyrecord_t) {
+				.event = waiting
+			});
 		}
 	}
 }
 
+void matrix_scan_kana(void) {
+	if(await_shift_delay) {
+		if(timer_elapsed(waiting.time) >= SHIFTING_DELAY) {
+			await_shift_delay = false;
+			process_record(&(keyrecord_t) {
+				.event = waiting
+			});
+		}
+	}
+}
 bool is_kana_chord(uint16_t keycode) {
 	return in_range(keycode, KANA_CHORD, KANA_CHORD_MAX);
 }

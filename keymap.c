@@ -30,6 +30,9 @@ void numlock_off(void) {
 	}
 }
 
+void matrix_scan_user(void) {
+	matrix_scan_kana();
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	keyevent_t event = record->event;
