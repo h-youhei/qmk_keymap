@@ -1,8 +1,10 @@
-#pragma once
+#ifndef kana_h_INCLUDED
+#define kana_h_INCLUDED
 
 #include "action.h" //keyrecord_t
 #include "my.h" //KANA_RANGE
 
+extern bool is_playing_kana_typing_game;
 bool is_kana(uint16_t keycode);
 void tap_kana(uint16_t kana, keyevent_t event);
 bool process_record_kana(uint16_t keycode, keyrecord_t *record);
@@ -178,6 +180,7 @@ enum kana_code {
 	KANA_ZSLSH, //・
 	KANA_ZDOT, //…
 	KANA_ZCOMM, //‥
+	KANA_ZMINS, //〜
 	KANA_ZH, //←
 	KANA_ZJ,
 	KANA_ZK,
@@ -185,3 +188,5 @@ enum kana_code {
 	KANA_ZLBRC, //『
 	KANA_ZRBRC,
 };
+
+#endif // kana_h_INCLUDED

@@ -7,20 +7,22 @@ English|[日本語](README.ja.md)
 3. run `sh write.sh`
 
 ## Base
+![ascii layout](img/ascii-layout.png)
+<!--
 ```
  ------------------------------                     ------------------------------
 | Prnt | $ | % | ! | @ | # |   |                   | { | * | ( | ) | ^ | & |Clear |
 |  Scr | 4 | 5 | 1 | 2 | 3 |Ins|                   | { | 8 | 9 | 0 | 6 | 7 |      |
 |      | Fn|Win|Alt|Ctl|   |   |                   |   |   |Ctl|Alt|Win|Fn |      |
 |------------------------------|                   |------------------------------|
-|   |  | Q | B | R | N | K | + |                   | } | Y | I | O | G | Z |  ~   |
-|   \  |   |   |   |   |   | = |                   | ] |   |   |   |   |   |  `   |
+|   |  | Q | V | R | N | B | + |                   | } | > | U | O | _ | " |  ~   |
+|   \  |   |   |   |   |   | = |                   | ] | . |   |   | - | ' |  `   |
 |--------------------------|   |                   |   |--------------------------|
-|   ?  | F | C | T | S | L |___|                   |___| U | E | A | D | P |  :   |
-|   /  |   |   |   |   |   |   |                   |   |   |   |   |   |   |  ;   |
+|   ?  | W | F | T | S | L |___|                   |___| < | I | A | P | G |  :   |
+|   /  |   |   |   |   |   |   |                   |   | , |   |   |   |   |  ;   |
 |--------------------------|BS |                   |Del|--------------------------|
-| Caps | X | W | M | H | V |   |                   |   | _ | < | > | " | J | Caps |
-|      |   |   |   |   |   |   | -------   ------- |   | - | , | . | ' |   |      |
+| Caps | J | X | C | H | M |   |                   |   | Y | E | D | K | Z | Caps |
+|      |   |   |   |   |   |   | -------   ------- |   |   |   |   |   |   |      |
 ------------------------------- | R | L | |Pg |Pg | ------------------------------
    |   |   |Ho |Up |Dn |        |Btn|Btn| | Dn| Up|        |Le |Ri |End|   |   |
    |   |   | me|   |   |     -----------| |-----------     | ft|ght|   |   |   |
@@ -31,9 +33,11 @@ English|[日本語](README.ja.md)
                             | c | t |   | |TGL| b | c |
                              -----------   -----------
 ```
+-->
 
 ## Fn layer
-
+![fn-layout](img/fn-layout.png)
+<!--
 ```
  ------------------------------                     ------------------------------
 |      |   |   |   |   |   |   |                   |   |   |   |   |   |   |      |
@@ -57,7 +61,8 @@ English|[日本語](README.ja.md)
                             | c | t |   | |   | b | c |
                              -----------   -----------
 ```
-
+-->
+<!--
 ## Simultaneous Modifier
 simultaneous tapping version of MOD-TAP.
 
@@ -92,6 +97,7 @@ process_record(...
 ```
 
 To customize, read process_simultaneous.h .
+-->
 
 ## details
 IME key is used for toggle Input Method. Internally, it's assigned to KANA key.

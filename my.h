@@ -7,8 +7,8 @@ enum Layer {
 #ifdef ENABLE_STABLE_LAYER
 	L_STABLE,
 #endif
-	L_KANA,
 	L_FN,
+	L_KANA,
 	KANA_LAYER_RANGE,
 };
 

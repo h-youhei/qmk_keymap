@@ -6,6 +6,13 @@
 #include "util_user.h" //in_range
 #include "kana.h"
 
+bool is_playing_kana_typing_game = false;
+static inline void commit_kana(void) {
+	if(!is_playing_kana_typing_game) {
+		tap_code(KC_ENT);
+	}
+}
+
 bool is_kana(uint16_t keycode) {
 	return in_range(keycode, KANA_A, KANA_ZRBRC);
 }
@@ -522,32 +529,42 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				// 記号
 				case KANA_COMM:
 					tap_code(KC_COMM);
-					tap_code(KC_ENT);
+					commit_kana();
 					break;
 				case KANA_DOT:
 					tap_code(KC_DOT);
-					tap_code(KC_ENT);
+					commit_kana();
 					break;
 				case KANA_ZSLSH:
 					SEND_STRING("z/");
+					commit_kana();
 					break;
 				case KANA_ZDOT:
 					SEND_STRING("z.");
+					commit_kana();
 					break;
 				case KANA_ZCOMM:
 					SEND_STRING("z,");
+					commit_kana();
 					break;
 				case KANA_ZH:
 					SEND_STRING("zh");
+					commit_kana();
 					break;
 				case KANA_ZJ:
 					SEND_STRING("zj");
+					commit_kana();
 					break;
 				case KANA_ZK:
 					SEND_STRING("zk");
+					commit_kana();
 					break;
 				case KANA_ZL:
 					SEND_STRING("zl");
+					commit_kana();
+					break;
+				case KANA_ZMINS:
+					SEND_STRING("z-");
 					break;
 				case KANA_ZLBRC:
 					SEND_STRING("z[");

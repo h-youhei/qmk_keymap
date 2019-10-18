@@ -6,6 +6,7 @@
 
 bool process_kana(uint16_t keycode, keyrecord_t *record);
 void matrix_scan_kana(void);
+
 // used for avoiding shift remaining
 #ifndef SHIFTING_DELAY
 #define SHIFTING_DELAY 100
@@ -21,14 +22,14 @@ enum kana_layer {
 	L_KANA_YU,
 	L_KANA_YO,
 	L_KANA_YE,
-	L_KANA_SIGN,
-	L_KANA_PARN,
+	// L_KANA_SIGN,
+	L_KANA_X,
 	L_KANA_K,
 	L_KANA_S,
 	L_KANA_T,
 	L_KANA_N,
 	L_KANA_H,
-	L_KANA_M,
+	// L_KANA_M,
 	L_KANA_R,
 	L_KANA_W,
 	L_KANA_F,
@@ -54,12 +55,14 @@ enum kana_chord_keycodes {
 #define KANA_YU_T(kc) KANA_T(L_KANA_YU, kc)
 #define KANA_YO_T(kc) KANA_T(L_KANA_YO, kc)
 #define KANA_YE_T(kc) KANA_T(L_KANA_YE, kc)
+// #define KANA_SIGN_T(kc) KANA_T(L_KANA_SIGN, kc)
+#define KANA_X_T(kc) KANA_T(L_KANA_X, kc)
 #define KANA_K_T(kc) KANA_T(L_KANA_K, kc)
 #define KANA_S_T(kc) KANA_T(L_KANA_S, kc)
 #define KANA_T_T(kc) KANA_T(L_KANA_T, kc)
 #define KANA_N_T(kc) KANA_T(L_KANA_N, kc)
 #define KANA_H_T(kc) KANA_T(L_KANA_H, kc)
-#define KANA_M_T(kc) KANA_T(L_KANA_M, kc)
+// #define KANA_M_T(kc) KANA_T(L_KANA_M, kc)
 #define KANA_R_T(kc) KANA_T(L_KANA_R, kc)
 #define KANA_W_T(kc) KANA_T(L_KANA_W, kc)
 #define KANA_F_T(kc) KANA_T(L_KANA_F, kc)
