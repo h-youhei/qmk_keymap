@@ -57,7 +57,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 				numlock_off();
 			}
 			if(biton32(layer_state) != L_FN) {
-				tap_code(KC_KANA);
+				tap_code(JP_ZHTG);
 			}
 			else {
 				is_playing_kana_typing_game = !is_playing_kana_typing_game;
@@ -291,7 +291,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_MHEN, KC_TRNS, KC_TRNS,
+		KC_F7, KC_TRNS, KC_TRNS,
 		// right hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
 		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
@@ -313,7 +313,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_F6, KC_TRNS, KC_TRNS,
+		KC_MHEN, KC_TRNS, KC_TRNS,
 		// right hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
 		KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KC_TRNS,
@@ -335,7 +335,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_F7, KC_TRNS, KC_TRNS,
+		KC_KANA, KC_TRNS, KC_TRNS,
 		// right hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
 		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
@@ -379,7 +379,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_F6, KC_TRNS, KC_TRNS,
 		// right hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
 		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
@@ -499,7 +499,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_KANA
+		KC_TRNS, KC_TRNS, KC_TRNS
 	),
 	[L_KANA_K] = LAYOUT_ergodox(
 		// left hand
@@ -521,7 +521,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_KANA
+		KC_TRNS, KC_TRNS, KC_HENK
 	),
 	[L_KANA_S] = LAYOUT_ergodox(
 		// left hand
@@ -565,7 +565,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_F10
+		KC_TRNS, KC_TRNS, KC_CAPS
 	),
 	[L_KANA_N] = LAYOUT_ergodox(
 		// left hand
@@ -653,7 +653,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_HENK
+		KC_TRNS, KC_TRNS, KC_F10
 	),
 	[L_KANA_W] = LAYOUT_ergodox(
 		// left hand
