@@ -4,6 +4,7 @@
 
 enum Layer {
 	L_BASE,
+	L_SHIFT,
 #ifdef ENABLE_STABLE_LAYER
 	L_STABLE,
 #endif
@@ -15,6 +16,7 @@ enum Layer {
 enum user_code {
 	CLEAR = SAFE_RANGE,
 	IME,
+	JIS_COLN,
 	KANA_ROLL,
 	KANA_RANGE,
 };

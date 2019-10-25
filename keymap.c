@@ -1,11 +1,13 @@
 #include "ergodox_ez.h"
 #include "util_user.h"
 #include "action.h"
+#include "keymap_jp.h"
 
 #include "kana.h"
 #include "kana_chord.h"
 #include "my.h"
 
+#define SFT_LT(kc) LT(L_SHIFT, kc)
 #define FN_T(kc) LT(L_FN, kc)
 
 // click (left, middle, right)
@@ -19,6 +21,7 @@
 #define STABLE CLEAR
 #endif
 
+static bool coln_pressed = false;
 void numlock_on(void) {
 	if(IS_HOST_LED_OFF(USB_LED_NUM_LOCK)) {
 		tap_code(KC_NLCK);
@@ -62,6 +65,49 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		}
 		return false;
 		break;
+	case JIS_COLN:
+		if(event.pressed) {
+			del_mods(MOD_LSFT);
+			register_code(JP_COLN);
+			coln_pressed = true;
+		}
+		else {
+			if(layer_state & (1UL<<L_SHIFT)) {
+				unregister_code(JP_COLN);
+				add_mods(MOD_LSFT);
+				coln_pressed = false;
+			}
+			else {
+				unregister_code(KC_SCLN);
+			}
+		}
+		return false;
+	case LCTL_T(JP_AT):
+		if(record->tap.count > 0) {
+			if(event.pressed) {
+				del_mods(MOD_LSFT);
+				register_code(JP_AT);
+			}
+			else {
+				unregister_code(JP_AT);
+				add_mods(MOD_LSFT);
+			}
+			return false;
+		}
+		return true;
+	case RGUI_T(JP_CIRC):
+		if(record->tap.count > 0) {
+			if(event.pressed) {
+				del_mods(MOD_LSFT);
+				register_code(JP_CIRC);
+			}
+			else {
+				unregister_code(JP_CIRC);
+				add_mods(MOD_LSFT);
+			}
+			return false;
+		}
+		return true;
 	default:
 		break;
 	}
@@ -83,6 +129,24 @@ void led_set_user(uint8_t usb_led) {
 
 	if(IS_LED_ON(usb_led, USB_LED_SCROLL_LOCK)) ergodox_right_led_3_on();
 	else ergodox_right_led_3_off();
+}
+
+static uint8_t prev_layer_state = 1UL<<L_BASE;
+layer_state_t layer_state_set_user(layer_state_t state) {
+	if(state & (1UL<<L_SHIFT) && !(prev_layer_state & (1UL<<L_SHIFT))) {
+		register_code(KC_LSFT);
+	}
+	else if(!(state & (1UL<<L_SHIFT)) && prev_layer_state & (1UL<<L_SHIFT)) {
+		if(coln_pressed) {
+			coln_pressed = false;
+			unregister_code(JP_COLN);
+			unregister_code(KC_LSFT);
+			register_code(KC_SCLN);
+		}
+		else unregister_code(KC_LSFT);
+	}
+	prev_layer_state = state;
+	return state;
 }
 
 layer_state_t default_layer_state_set_user(layer_state_t state) {
@@ -108,24 +172,46 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[L_BASE] = LAYOUT_ergodox(
 		// left hand
 		KC_PSCR, FN_T(KC_4), LGUI_T(KC_5), LALT_T(KC_1), LCTL_T(KC_2), KC_3, KC_INS,
-		KC_BSLS, KC_Q, KC_V, KC_R, KC_N, KC_B, KC_EQL,
+		JP_YEN, KC_Q, KC_V, KC_R, KC_N, KC_B, JP_EQL,
 		KC_SLSH, KC_W, KC_F, KC_T, KC_S, KC_L,
-		KC_CAPS, KC_J, KC_X, KC_C, KC_H, KC_M, KC_BSPC,
+		S(KC_CAPS), KC_J, KC_X, KC_C, KC_H, KC_M, KC_BSPC,
 		KC_WH_U, KC_WH_D, KC_HOME, KC_UP, KC_DOWN,
 		// thumb
 		KC_RCLK, KC_LCLK,
 		KC_MCLK,
-		LSFT_T(KC_SPC), KC_ENT, KC_ESC,
+		SFT_LT(KC_SPC), KC_ENT, KC_ESC,
 		// right hand
-		KC_LBRC, KC_8, RCTL_T(KC_9), RALT_T(KC_0), RGUI_T(KC_6), FN_T(KC_7), STABLE,
-		KC_RBRC, KC_DOT, KC_U, KC_O, KC_MINS, KC_QUOT, KC_GRV,
+		JP_LBRC, KC_8, RCTL_T(KC_9), RALT_T(KC_0), RGUI_T(KC_6), FN_T(KC_7), STABLE,
+		JP_RBRC, KC_DOT, KC_U, KC_O, KC_MINS, JP_QUOT, JP_GRV,
 		KC_COMM, KC_I, KC_A, KC_P, KC_G, KC_SCLN,
-		KC_DEL, KC_Y, KC_E, KC_D, KC_K, KC_Z, KC_CAPS,
-		KC_LEFT, KC_RGHT, KC_END, KC_WH_L, KC_WH_R,
+		KC_DEL, KC_Y, KC_E, KC_D, KC_K, KC_Z, S(KC_CAPS),
+		KC_LEFT, KC_RGHT, KC_END, KC_WH_L, KC_LSFT,
 		// thumb
 		KC_PGDN, KC_PGUP,
 		KC_WBAK,
-		IME, KC_TAB, RSFT_T(KC_SPC)
+		IME, KC_TAB, SFT_LT(KC_SPC)
+	),
+	[L_SHIFT] = LAYOUT_ergodox(
+		// left hand
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, LCTL_T(JP_AT), KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, JP_PLUS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, JP_ASTR, RCTL_T(JP_LPRN), RALT_T(JP_RPRN), RGUI_T(JP_CIRC), FN_T(JP_AMPR), DF(L_BASE),
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, JP_UNDS, JP_DQT, JP_TILD,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, JIS_COLN,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS
 	),
 #ifdef ENABLE_STABLE_LAYER
 	[L_STABLE] = LAYOUT_ergodox(
