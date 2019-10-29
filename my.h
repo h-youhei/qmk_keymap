@@ -16,6 +16,8 @@ enum Layer {
 enum user_code {
 	CLEAR = SAFE_RANGE,
 	IME,
+	COMMIT_MODE,
+	PRACTICE_MODE,
 	JIS_COLN,
 	KANA_ROLL,
 	KANA_RANGE,

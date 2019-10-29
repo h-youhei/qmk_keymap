@@ -6,15 +6,20 @@
 #include "util_user.h" //in_range
 #include "kana.h"
 
-bool is_playing_kana_typing_game = false;
-static inline void commit_kana(void) {
-	if(!is_playing_kana_typing_game) {
+bool is_commit_mode = false;
+bool is_practice_mode = false;
+
+static inline void commit(void) {
+	if(!is_practice_mode) {
 		tap_code(KC_ENT);
 	}
 }
 
 bool is_kana(uint16_t keycode) {
-	return in_range(keycode, KANA_A, KANA_ZRBRC);
+	return in_range(keycode, KANA_A, KANA_WYE);
+}
+bool is_kana_symbol(uint16_t keycode) {
+	return in_range(keycode, KANA_COMM, KANA_ZRBRC);
 }
 
 void tap_kana(uint16_t kana, keyevent_t event) {
@@ -27,7 +32,7 @@ void tap_kana(uint16_t kana, keyevent_t event) {
 }
 
 bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
-	if(!is_kana(keycode)) return true;
+	if(!(is_kana(keycode) || is_kana_symbol(keycode))) return true;
 
 	keyevent_t event = record->event;
 	if(event.pressed) {
@@ -529,39 +534,40 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				// 記号
 				case KANA_COMM:
 					tap_code(KC_COMM);
-					commit_kana();
+					commit();
+					return false;
 					break;
 				case KANA_DOT:
 					tap_code(KC_DOT);
-					commit_kana();
+					commit();
+					return false;
 					break;
 				case KANA_ZSLSH:
 					SEND_STRING("z/");
-					commit_kana();
+					commit();
+					return false;
 					break;
 				case KANA_ZDOT:
 					SEND_STRING("z.");
-					commit_kana();
+					commit();
+					return false;
 					break;
 				case KANA_ZCOMM:
 					SEND_STRING("z,");
-					commit_kana();
+					commit();
+					return false;
 					break;
 				case KANA_ZH:
 					SEND_STRING("zh");
-					commit_kana();
 					break;
 				case KANA_ZJ:
 					SEND_STRING("zj");
-					commit_kana();
 					break;
 				case KANA_ZK:
 					SEND_STRING("zk");
-					commit_kana();
 					break;
 				case KANA_ZL:
 					SEND_STRING("zl");
-					commit_kana();
 					break;
 				case KANA_ZMINS:
 					SEND_STRING("z-");
@@ -574,6 +580,7 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 					break;
 			}
 		}
+		if(is_commit_mode) tap_code(KC_ENT);
 	}
 	return false;
 }

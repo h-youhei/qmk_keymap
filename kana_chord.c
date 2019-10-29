@@ -10,6 +10,9 @@
 static keyevent_t held_as_layer;
 static bool is_tapping = false;
 static keyevent_t waiting;
+// if kana_chord_t is released just after a key is pressed
+// then kana_chord_t and next key press is recognized
+// as sequencial key press, not kana_chord
 static bool await_shift_delay = false;
 
 static uint16_t get_kana_from_keycode(uint16_t keycode);
@@ -24,6 +27,7 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 			process_kana_chord(keycode, record);
 			return false;
 		}
+		//default_layer_state is L_KANA and not in other layer
 		if(biton32(default_layer_state | layer_state) == L_KANA) {
 			if(is_kana(keycode)) {
 				process_record_kana(keycode, record);
@@ -47,8 +51,9 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 				}
 				return false;
 			}
-			else if(is_kana(keycode) || keycode == KC_NO ) {
+			else {
 				if(event.pressed) {
+					// 3rd or later kana_chord
 					if(await_shift_delay) {
 						await_shift_delay = false;
 						process_record(&(keyrecord_t) {
@@ -57,15 +62,17 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 						await_shift_delay = true;
 						waiting = event;
 					}
+					// 2nd kana_chord
 					else if(is_tapping) {
 						await_shift_delay = true;
 						is_tapping = false;
 						waiting = event;
 					}
+					//through previous condition or matrix_scan_kana
 					else if(is_kana(keycode)) {
-						//test
 						process_record_kana(keycode, record);
 					}
+					else return true;
 				}
 				else {
 					if(await_shift_delay) {
@@ -74,6 +81,7 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 							.event = waiting
 						});
 					}
+					else if(!is_kana(keycode)) return true;
 				}
 			}
 			return false;

@@ -39,6 +39,7 @@ void matrix_scan_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	keyevent_t event = record->event;
+	if(!process_kana(keycode, record)) return false;
 	switch(keycode) {
 	case CLEAR:
 		if(event.pressed) {
@@ -50,21 +51,44 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	case IME:
 		if(event.pressed) {
 			uint8_t default_layer = biton32(default_layer_state);
+			// TODO: use raw_hid to detect ime state
 			if(default_layer == L_BASE) {
 				numlock_on();
 			}
 			else if(default_layer == L_KANA) {
 				numlock_off();
 			}
-			if(biton32(layer_state) != L_FN) {
-				tap_code(JP_ZHTG);
-			}
-			else {
-				is_playing_kana_typing_game = !is_playing_kana_typing_game;
-			}
+			tap_code(JP_ZHTG);
+			is_practice_mode = false;
 		}
 		return false;
 		break;
+	case COMMIT_MODE:
+		if(event.pressed) {
+			is_commit_mode = !is_commit_mode;
+			is_practice_mode = false;
+			// to update led indicator
+			default_layer_state_set_user(default_layer_state);
+		}
+		return false;
+		break;
+	case PRACTICE_MODE:
+		if(event.pressed) {
+			uint8_t default_layer = biton32(default_layer_state);
+			if(default_layer == L_BASE) {
+				numlock_on();
+				is_practice_mode = true;
+			}
+			//L_KANA
+			else {
+				tap_code(JP_ZHTG);
+				is_practice_mode = !is_practice_mode;
+			}
+			is_commit_mode = false;
+			// to update led indicator
+			default_layer_state_set_user(default_layer_state);
+		}
+		return false;
 	case JIS_COLN:
 		if(event.pressed) {
 			del_mods(MOD_LSFT);
@@ -111,7 +135,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	default:
 		break;
 	}
-	return process_kana(keycode, record);
+	return true;
 }
 
 void led_set_user(uint8_t usb_led) {
@@ -127,8 +151,8 @@ void led_set_user(uint8_t usb_led) {
 	if(IS_LED_ON(usb_led, USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
 	else ergodox_right_led_2_off();
 
-	if(IS_LED_ON(usb_led, USB_LED_SCROLL_LOCK)) ergodox_right_led_3_on();
-	else ergodox_right_led_3_off();
+	// if(IS_LED_ON(usb_led, USB_LED_SCROLL_LOCK)) ergodox_right_led_3_on();
+	// else ergodox_right_led_3_off();
 }
 
 static uint8_t prev_layer_state = 1UL<<L_BASE;
@@ -155,8 +179,24 @@ layer_state_t default_layer_state_set_user(layer_state_t state) {
 #ifdef ENABLE_STABLE_LAYER
 // 	if(layer == L_STABLE) ergodox_right_led_1_on();
 #endif
-	if(layer == L_KANA) ergodox_right_led_1_on();
-	else ergodox_right_led_1_off();
+	if(layer == L_KANA) {
+		if(is_commit_mode) {
+			ergodox_right_led_1_on();
+			ergodox_right_led_3_on();
+		}
+		else if(is_practice_mode) {
+			ergodox_right_led_1_off();
+			ergodox_right_led_3_on();
+		}
+		else {
+			ergodox_right_led_1_on();
+			ergodox_right_led_3_off();
+		}
+	}
+	else {
+		ergodox_right_led_1_off();
+		ergodox_right_led_3_off();
+	}
 	return state;
 }
 
@@ -279,7 +319,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS
+		PRACTICE_MODE, KC_TRNS, KC_TRNS
 	),
 	[L_KANA_A] = LAYOUT_ergodox(
 		// left hand
@@ -291,7 +331,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_F7, KC_TRNS, KC_TRNS,
+		KC_F7, COMMIT_MODE, KC_TRNS,
 		// right hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
 		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
@@ -335,7 +375,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_KANA, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
 		// right hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
 		KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
@@ -357,7 +397,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_KANA, KC_TRNS, KC_TRNS,
 		// right hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, DF(L_BASE),
 		KC_TRNS, KANA_ROLL, KC_TRNS, KANA_ROLL, KANA_ROLL, KANA_ROLL, KC_TRNS,
@@ -653,7 +693,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_F10
+		JP_ZHTG, KC_TRNS, KC_F10
 	),
 	[L_KANA_W] = LAYOUT_ergodox(
 		// left hand
