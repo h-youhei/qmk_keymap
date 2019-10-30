@@ -146,8 +146,8 @@ enum kana_code {
 	KANA_GWI,
 	KANA_GWE,
 	KANA_GWO,
-	KANA_SWI, //スィ
-	KANA_ZWI, //ズィ
+	// KANA_SWI, //スィ
+	// KANA_ZWI, //ズィ
 	KANA_TSA, //ツァ
 	KANA_TSI,
 	KANA_TSE,

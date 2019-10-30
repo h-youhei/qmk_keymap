@@ -16,10 +16,7 @@ static inline void commit(void) {
 }
 
 bool is_kana(uint16_t keycode) {
-	return in_range(keycode, KANA_A, KANA_WYE);
-}
-bool is_kana_symbol(uint16_t keycode) {
-	return in_range(keycode, KANA_COMM, KANA_ZRBRC);
+	return in_range(keycode, KANA_A, KANA_ZRBRC);
 }
 
 void tap_kana(uint16_t kana, keyevent_t event) {
@@ -32,7 +29,7 @@ void tap_kana(uint16_t kana, keyevent_t event) {
 }
 
 bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
-	if(!(is_kana(keycode) || is_kana_symbol(keycode))) return true;
+	if(!is_kana(keycode)) return true;
 
 	keyevent_t event = record->event;
 	if(event.pressed) {
@@ -443,16 +440,18 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_GWO:
 					SEND_STRING("gwo");
 					break;
+				/*
 				case KANA_SWI:
 					// This is not in Mozc
 					// SEND_STRING("swi");
 					SEND_STRING("suxi");
-				break;
+					break;
 				case KANA_ZWI:
 					// This is not in Mozc
 					// SEND_STRING("zwi");
 					SEND_STRING("zuxi");
 					break;
+				*/
 				case KANA_TSA:
 					SEND_STRING("tsa");
 					break;
