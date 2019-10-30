@@ -85,39 +85,51 @@ enum kana_code {
 	// 拗音
 	KANA_KYA,
 	KANA_KYU,
+	KANA_KYE,
 	KANA_KYO,
 	KANA_SYA,
 	KANA_SYU,
+	KANA_SYE,
 	KANA_SYO,
 	KANA_TYA,
 	KANA_TYU,
+	KANA_TYE,
 	KANA_TYO,
 	KANA_NYA,
 	KANA_NYU,
+	KANA_NYE,
 	KANA_NYO,
 	KANA_HYA,
 	KANA_HYU,
+	KANA_HYE,
 	KANA_HYO,
 	KANA_MYA,
 	KANA_MYU,
+	KANA_MYE,
 	KANA_MYO,
 	KANA_RYA,
 	KANA_RYU,
+	KANA_RYE,
 	KANA_RYO,
 	KANA_GYA,
 	KANA_GYU,
+	KANA_GYE,
 	KANA_GYO,
 	KANA_JA,
 	KANA_JU,
+	KANA_JE,
 	KANA_JO,
 	KANA_DYA,
 	KANA_DYU,
+	KANA_DYE,
 	KANA_DYO,
 	KANA_BYA,
 	KANA_BYU,
+	KANA_BYE,
 	KANA_BYO,
 	KANA_PYA,
 	KANA_PYU,
+	KANA_PYE,
 	KANA_PYO,
 	// 外来音
 	KANA_YE, //イェ
@@ -129,37 +141,42 @@ enum kana_code {
 	KANA_QI,
 	KANA_QE,
 	KANA_QO,
+	KANA_QWA, //クヮ
 	KANA_GWA, //グァ
 	KANA_GWI,
 	KANA_GWE,
 	KANA_GWO,
 	KANA_SWI, //スィ
-	KANA_SYE, //シェ
 	KANA_ZWI, //ズィ
-	KANA_JE, //ジェ
 	KANA_TSA, //ツァ
 	KANA_TSI,
 	KANA_TSE,
 	KANA_TSO,
-	KANA_TYE, //チェ
 	KANA_THI, //ティ
 	KANA_THU, //テュ
+	KANA_THA,
+	KANA_THO,
 	KANA_TWU, //トゥ
 	KANA_DHI, //ディ
 	KANA_DHU, //デュ
+	KANA_DHA,
+	KANA_DHO,
 	KANA_DWU, //ドゥ
-	KANA_DYE, //ヂェ
 	KANA_FA, //ファ
 	KANA_FI,
 	KANA_FE,
 	KANA_FO,
 	KANA_FYU, //フュ
+	KANA_FYA,
+	KANA_FYO,
 	KANA_VU, //ヴ
 	KANA_VA, //ヴァ
 	KANA_VI,
 	KANA_VE,
 	KANA_VO,
 	KANA_VYU, //ヴュ
+	KANA_VYA,
+	KANA_VYO,
 	// 小書き、古文
 	KANA_XA,
 	KANA_XI,

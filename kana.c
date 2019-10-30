@@ -261,6 +261,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_KYU:
 					SEND_STRING("kyu");
 					break;
+				case KANA_KYE:
+					SEND_STRING("kye");
+					break;
 				case KANA_KYO:
 					SEND_STRING("kyo");
 					break;
@@ -269,6 +272,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 					break;
 				case KANA_SYU:
 					SEND_STRING("syu");
+					break;
+				case KANA_SYE:
+					SEND_STRING("sye");
 					break;
 				case KANA_SYO:
 					SEND_STRING("syo");
@@ -279,6 +285,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_TYU:
 					SEND_STRING("tyu");
 					break;
+				case KANA_TYE:
+					SEND_STRING("tye");
+					break;
 				case KANA_TYO:
 					SEND_STRING("tyo");
 					break;
@@ -287,6 +296,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 					break;
 				case KANA_NYU:
 					SEND_STRING("nyu");
+					break;
+				case KANA_NYE:
+					SEND_STRING("nye");
 					break;
 				case KANA_NYO:
 					SEND_STRING("nyo");
@@ -297,6 +309,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_HYU:
 					SEND_STRING("hyu");
 					break;
+				case KANA_HYE:
+					SEND_STRING("hye");
+					break;
 				case KANA_HYO:
 					SEND_STRING("hyo");
 					break;
@@ -305,6 +320,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 					break;
 				case KANA_MYU:
 					SEND_STRING("myu");
+					break;
+				case KANA_MYE:
+					SEND_STRING("mye");
 					break;
 				case KANA_MYO:
 					SEND_STRING("myo");
@@ -315,6 +333,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_RYU:
 					SEND_STRING("ryu");
 					break;
+				case KANA_RYE:
+					SEND_STRING("rye");
+					break;
 				case KANA_RYO:
 					SEND_STRING("ryo");
 					break;
@@ -323,6 +344,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 					break;
 				case KANA_GYU:
 					SEND_STRING("gyu");
+					break;
+				case KANA_GYE:
+					SEND_STRING("gye");
 					break;
 				case KANA_GYO:
 					SEND_STRING("gyo");
@@ -333,6 +357,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_JU:
 					SEND_STRING("ju");
 					break;
+				case KANA_JE:
+					SEND_STRING("je");
+					break;
 				case KANA_JO:
 					SEND_STRING("jo");
 					break;
@@ -341,6 +368,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 					break;
 				case KANA_DYU:
 					SEND_STRING("dyu");
+					break;
+				case KANA_DYE:
+					SEND_STRING("dye");
 					break;
 				case KANA_DYO:
 					SEND_STRING("dyo");
@@ -351,6 +381,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_BYU:
 					SEND_STRING("byu");
 					break;
+				case KANA_BYE:
+					SEND_STRING("bye");
+					break;
 				case KANA_BYO:
 					SEND_STRING("byo");
 					break;
@@ -359,6 +392,9 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 					break;
 				case KANA_PYU:
 					SEND_STRING("pyu");
+					break;
+				case KANA_PYE:
+					SEND_STRING("pye");
 					break;
 				case KANA_PYO:
 					SEND_STRING("pyo");
@@ -391,6 +427,10 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_QO:
 					SEND_STRING("qo");
 					break;
+				case KANA_QWA:
+					// This is not in Mozc
+					SEND_STRING("quxwa");
+					break;
 				case KANA_GWA:
 					SEND_STRING("gwa");
 					break;
@@ -408,16 +448,10 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 					// SEND_STRING("swi");
 					SEND_STRING("suxi");
 				break;
-				case KANA_SYE:
-					SEND_STRING("sye");
-					break;
 				case KANA_ZWI:
 					// This is not in Mozc
 					// SEND_STRING("zwi");
 					SEND_STRING("zuxi");
-					break;
-				case KANA_JE:
-					SEND_STRING("je");
 					break;
 				case KANA_TSA:
 					SEND_STRING("tsa");
@@ -434,26 +468,32 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_THI:
 					SEND_STRING("thi");
 					break;
+				case KANA_THA:
+					SEND_STRING("tha");
+					break;
 				case KANA_THU:
 					SEND_STRING("thu");
+					break;
+				case KANA_THO:
+					SEND_STRING("tho");
 					break;
 				case KANA_TWU:
 					SEND_STRING("twu");
 					break;
-				case KANA_TYE:
-					SEND_STRING("tye");
-					break;
 				case KANA_DHI:
 					SEND_STRING("dhi");
+					break;
+				case KANA_DHA:
+					SEND_STRING("dha");
 					break;
 				case KANA_DHU:
 					SEND_STRING("dhu");
 					break;
+				case KANA_DHO:
+					SEND_STRING("dho");
+					break;
 				case KANA_DWU:
 					SEND_STRING("dwu");
-					break;
-				case KANA_DYE:
-					SEND_STRING("dye");
 					break;
 				case KANA_FA:
 					SEND_STRING("fa");
@@ -467,8 +507,14 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_FO:
 					SEND_STRING("fo");
 					break;
+				case KANA_FYA:
+					SEND_STRING("fya");
+					break;
 				case KANA_FYU:
 					SEND_STRING("fyu");
+					break;
+				case KANA_FYO:
+					SEND_STRING("fyo");
 					break;
 				case KANA_VU:
 					SEND_STRING("vu");
@@ -485,8 +531,14 @@ bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
 				case KANA_VO:
 					SEND_STRING("vo");
 					break;
+				case KANA_VYA:
+					SEND_STRING("vya");
+					break;
 				case KANA_VYU:
 					SEND_STRING("vyu");
+					break;
+				case KANA_VYO:
+					SEND_STRING("vyo");
 					break;
 				// 小書き、古文
 				case KANA_XA:
