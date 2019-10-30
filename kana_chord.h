@@ -9,7 +9,7 @@ void matrix_scan_kana(void);
 
 // used for avoiding shift remaining
 #ifndef SHIFTING_DELAY
-#define SHIFTING_DELAY 100
+#define SHIFTING_DELAY 80
 #endif
 
 enum kana_layer {
