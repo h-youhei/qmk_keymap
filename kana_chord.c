@@ -97,10 +97,12 @@ void process_kana_chord(uint16_t keycode, keyrecord_t *record) {
 		held_as_layer = event;
 		layer_on(layer);
 		is_tapping = true;
+		waiting = event;
 	}
 	else {
 		layer_off(layer);
-		if(is_tapping || await_shift_delay) {
+		if((is_tapping && TIMER_DIFF_16(event.time, waiting.time) < TAPPING_TERM)
+		|| await_shift_delay) {
 			uint16_t kana = get_kana_from_keycode(keycode);
 			tap_kana(kana, event);
 			is_tapping = false;
