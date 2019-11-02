@@ -10,9 +10,11 @@ bool is_commit_mode = false;
 bool is_practice_mode = false;
 
 static inline void commit(void) {
+	#ifdef COMMIT_AT_PUNCTUATION
 	if(!is_practice_mode) {
 		tap_code(KC_ENT);
 	}
+	#endif
 }
 
 bool is_kana(uint16_t keycode) {

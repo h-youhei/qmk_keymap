@@ -20,4 +20,6 @@
 // #define MOUSEKEY_WHEEL_TIME_TO_MAX 80
 #define MK_3_SPEED
 #define MK_W_INTERVAL_1 70
+
+#define COMMIT_AT_PUNCTUATION
 #endif
