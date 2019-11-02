@@ -1,14 +1,12 @@
-# Youhei配列
+# qmk firmware用キーマップ
 [English](README.md)|日本語
 
-[qmk_firmware][qmk]
-
-## Install
+## インストール
 1. [qmk_firmware][qmk] をクローン
 2. このリポジトリを `qmk_firmware/layouts/community/ergodox` にクローン
 3. `sh write.sh`を実行
 
-## Base
+## 英数面
 ![ascii layout](img/ascii-layout.png)
 <!--
 ```
@@ -36,7 +34,7 @@
                              -----------   -----------
 ```
 -->
-## Fn layer
+## Fnレイヤー
 ![fn layout](img/fn-layout.png)
 <!--
 ```
@@ -73,12 +71,6 @@
 3. `process_record_user()` から `process_simultaneous()` を呼び出します。
 4. `matrix_scan_user()` から `matrix_scan_simultaneous()` を呼び出します。
 -->
-
-## 特殊なキーの説明
-Clearキーは修飾キーロックを一度に解除します。
-
-IMEキーは全角半角キーです。チルダとキーコードが被っているので変換キーに割り当てています。
-各自で変換キーをインプットメソッドの全角半角切り替えに設定してください。
 
 <!--
 ## [Composeキー](https://en.wikipedia.org/wiki/Compose_key)

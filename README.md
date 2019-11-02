@@ -1,4 +1,4 @@
-# Youhei's keymap
+# keymap for qmk firmware
 English|[日本語](README.ja.md)
 
 ## Install
@@ -100,7 +100,7 @@ To customize, read process_simultaneous.h .
 -->
 
 ## details
-IME key is used for toggle Input Method. Internally, it's assigned to KANA key.
+IME key is used for toggle Input Method.
 
 ## Japanese Input
 see [Japanese Readme](README.ja.md)
