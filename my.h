@@ -9,16 +9,19 @@ enum Layer {
 	L_STABLE,
 #endif
 	L_FN,
+#ifndef NO_JAPANESE
 	L_KANA,
-	KANA_LAYER_RANGE,
+#endif
 };
 
 enum user_code {
 	CLEAR = SAFE_RANGE,
 	IME,
-	COMMIT_MODE,
 	PRACTICE_MODE,
+#ifndef NO_JAPANESE
+	COMMIT_MODE,
 	JIS_COLN,
 	KANA_ROLL,
 	KANA_RANGE,
+#endif
 };

@@ -1,4 +1,5 @@
-SRC += util_user.c kana.c kana_chord.c
+# SRC += util_user.c kana.c kana_chord.c
+SRC += util_user.c
 # KEY_LOCK_ENABLE = yes
 ### Overwrite ErgodoxEZ's default settings ###
 # BOOTMAGIC_ENABLE = no
