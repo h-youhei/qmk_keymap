@@ -9,6 +9,7 @@ extern bool is_commit_mode;
 bool is_kana(uint16_t keycode);
 void tap_kana(uint16_t kana, keyevent_t event);
 bool process_record_kana(uint16_t keycode, keyrecord_t *record);
+void register_kana(uint16_t keycode);
 
 enum kana_code {
 	KANA_A = KANA_RANGE,
@@ -146,8 +147,8 @@ enum kana_code {
 	KANA_GWI,
 	KANA_GWE,
 	KANA_GWO,
-	// KANA_SWI, //スィ
-	// KANA_ZWI, //ズィ
+	KANA_SWI, //スィ
+	KANA_ZWI, //ズィ
 	KANA_TSA, //ツァ
 	KANA_TSI,
 	KANA_TSE,
@@ -206,5 +207,12 @@ enum kana_code {
 	KANA_ZLBRC, //『
 	KANA_ZRBRC,
 };
+
+#define KANA_ZYA KANA_JA
+#define KANA_ZYU KANA_JU
+#define KANA_ZYE KANA_JE
+#define KANA_ZYO KANA_JO
+#define KANA_JI KANA_ZI
+#define KANA_FU KANA_HU
 
 #endif // kana_h_INCLUDED

@@ -11,7 +11,7 @@
 #define NO_ACTION_ONESHOT
 
 // #define ENABLE_STABLE_LAYER
-#define NO_JAPANESE
+// #define NO_JAPANESE
 
 #define TAPPING_FORCE_HOLD
 #define PERMISSIVE_HOLD
