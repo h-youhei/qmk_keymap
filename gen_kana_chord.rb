@@ -1,5 +1,5 @@
 #This script generates the code
-#kana_chord.c/register_kana_code()
+#kana_chord.c/register_kana_chord()
 
 indent = 1
 $tabs = ""
@@ -64,7 +64,6 @@ indent_puts "else if(kana_chord == BIT_VOWEL_WY) {"
 indent_puts "\tregister_kana(KANA_XWA);"
 indent_puts "}"
 #くぁ
-#foreign sound
 vowels = ["A", "I", "E", "O"]
 for v in vowels
 	indent_puts "else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_W" + v + ")) {"

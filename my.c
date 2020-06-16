@@ -115,7 +115,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		}
 		// use default process for mod
 		if(record->tap.count > 0) {
-			return process_record_kana(KANA_COMM ,record);
+			return process_record_kana(KANA_DOT ,record);
 		}
 		return true;
 #endif
