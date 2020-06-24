@@ -55,21 +55,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		return false;
 	case IME:
 		if(event.pressed) {
-			register_code(JP_ZHTG);
-		}
-		else {
+			tap_code(JP_ZHTG);
 #ifndef NO_JAPANESE
 			uint8_t default_layer = biton32(default_layer_state);
 			// TODO: use raw_hid to detect ime state
 			if(default_layer == L_BASE) {
 				numlock_on();
 			}
-			else if(default_layer == L_KANA) {
-				numlock_off();
+			// L_KANA
+			else {
+				if(!is_practice_mode) {
+					numlock_off();
+				}
+				else {
+					is_practice_mode = false;
+					default_layer_state_set_user(default_layer_state);
+				}
 			}
-			is_practice_mode = false;
 #endif
-			unregister_code(JP_ZHTG);
 		}
 		return false;
 #ifndef NO_JAPANESE
@@ -84,18 +87,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	case PRACTICE_MODE:
 		if(event.pressed) {
 			uint8_t default_layer = biton32(default_layer_state);
+			is_commit_mode = false;
 			if(default_layer == L_BASE) {
-				numlock_on();
 				is_practice_mode = true;
+				numlock_on();
 			}
 			//L_KANA
 			else {
-				tap_code(JP_ZHTG);
-				is_practice_mode = !is_practice_mode;
+				if(is_practice_mode) {
+					is_practice_mode = false;
+					numlock_off();
+				}
+				// IME is turned on
+				else {
+					tap_code(JP_ZHTG);
+					is_practice_mode = true;
+					// to update led indicator
+					default_layer_state_set_user(default_layer_state);
+				}
 			}
-			is_commit_mode = false;
-			// to update led indicator
-			default_layer_state_set_user(default_layer_state);
 		}
 		return false;
 	case LALT_T(KC_COMM):
