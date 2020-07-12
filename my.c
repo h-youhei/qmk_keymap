@@ -247,8 +247,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// right hand
 		CLEAR, KC_Q, RCTL_T(KC_TAB), RALT_T(KC_DOT), RGUI_T(JP_QUOT), KC_HOME, KC_END,
 		KC_SLSH, KC_W, KC_R, KC_O, KC_V, KC_LEFT, KC_RGHT,
-		KC_C, KC_T, KC_A, KC_G, KC_DOWN, KC_UP,
-		JP_DQT, KC_B, KC_L, KC_D, KC_X, KC_6, KC_7,
+		KC_C, KC_T, KC_A, KC_B, KC_DOWN, KC_UP,
+		JP_DQT, KC_G, KC_L, KC_D, KC_X, KC_6, KC_7,
 		JP_MINS, JP_UNDS, KC_DOT, KC_8, KC_9,
 		// thumb
 		KC_PGDN, KC_PGUP,
