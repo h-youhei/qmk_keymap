@@ -235,11 +235,11 @@ bool additioral_kana_chord(uint32_t kana_chord) {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[L_BASE] = LAYOUT_ergodox(
 		// left hand
-		KC_4, KC_5, LGUI_T(KC_SCLN), LALT_T(KC_COMM), LCTL_T(KC_ESC), KC_Z, KC_INS,
-		KC_2, KC_3, KC_K, KC_I, KC_N, KC_F, KC_DEL,
-		KC_0, KC_1, KC_Y, KC_E, KC_S, KC_M,
-		KC_WH_U, KC_WH_D, KC_J, KC_U, KC_H, KC_P, KC_BSPC,
-		KC_WH_L, KC_WH_R, KC_COMM, JP_LPRN, JP_RPRN,
+		KC_WH_L, KC_WH_R, LGUI_T(KC_SCLN), LALT_T(KC_COMM), LCTL_T(KC_ESC), KC_Z, KC_INS,
+		KC_WH_U, KC_WH_D, KC_K, KC_I, KC_N, KC_F, KC_DEL,
+		KC_1, KC_0, KC_Y, KC_E, KC_S, KC_M,
+		KC_3, KC_2, KC_J, KC_U, KC_H, KC_P, KC_BSPC,
+		KC_6, KC_5, KC_4, JP_LPRN, JP_RPRN,
 		// thumb
 		KC_RCLK, KC_LCLK,
 		KC_MCLK,
@@ -248,11 +248,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		CLEAR, KC_Q, RCTL_T(KC_TAB), RALT_T(KC_DOT), RGUI_T(JP_QUOT), KC_HOME, KC_END,
 		KC_SLSH, KC_W, KC_R, KC_O, KC_V, KC_LEFT, KC_RGHT,
 		KC_C, KC_T, KC_A, KC_B, KC_DOWN, KC_UP,
-		JP_DQT, KC_G, KC_L, KC_D, KC_X, KC_6, KC_7,
-		JP_MINS, JP_UNDS, KC_DOT, KC_8, KC_9,
+		JP_DQT, KC_G, KC_L, KC_D, KC_X, KC_PGDN, KC_PGUP,
+		JP_MINS, JP_UNDS, KC_7, KC_8, KC_9,
 		// thumb
-		KC_PGDN, KC_PGUP,
-		KC_WBAK,
+		KC_WBAK, KC_WFWD,
+		KC_WSCH,
 		IME, FN_T(KC_ENT), RSFT_T(KC_SPC)
 	),
 #ifdef ENABLE_STABLE_LAYER
