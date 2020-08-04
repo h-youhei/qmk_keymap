@@ -4,6 +4,11 @@
 #include "my.h"
 #include "kana.h"
 
+#if !defined(LAYER_KANA)
+#warning "LAYER_KANA is not defined. It is set to default value 1"
+#define LAYER_KANA 1
+#endif
+
 #if !defined(BIT_NEIGHBOR_VOWEL_A)
 #error "BIT_NEIGHBOR_VOWEL_A should be defined"
 #endif
@@ -50,12 +55,18 @@
 #error "BIT_CONSONANT_V should be defined"
 #endif
 
-// You can process kana_chord not processed in process_kana_chord
-// You should return false if you want process_kana do nothing other than call f_dakuon_short
-bool additioral_kana_chord(uint32_t kana_chord);
+// You can define additional kana_chord by overriding this function.
+// Branch by kana_chord and return kana.
+// You should return KC_NO other than additional_kana_chord.
+uint16_t additioral_kana_chord(uint32_t kana_chord);
 
-bool process_kana(uint16_t keycode, keyrecord_t *record);
-void matrix_scan_kana(void);
+bool is_kana_chord(uint16_t keycode);
+
+// return value
+// true: continue processing
+// false: The process is completed by this function
+void process_kana_chord(uint16_t keycode, keyrecord_t *record);
+
 enum kana_notes {
 	VOWEL_A,
 	VOWEL_I,

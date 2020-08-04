@@ -1,5 +1,6 @@
 #include "kana_chord.h"
 #include "util_user.h" // in_range
+#include "ime.h" // process_ime
 
 #include "action_layer.h" // default_layer_state, layer_clear
 #include "action_util.h" // keyboard_report
@@ -20,22 +21,7 @@ static uint16_t tapping;
 static uint16_t get_kana_from_keycode(uint16_t keycode);
 static uint16_t get_kana_note_from_keycode(uint16_t keycode);
 static uint32_t kana_note_to_bit(uint16_t note);
-static void process_kana_chord(uint16_t keycode, keyrecord_t *record);
-static void register_kana_chord(uint32_t kana_chord);
-static bool is_kana_chord(uint16_t keycode);
-
-bool process_kana(uint16_t keycode, keyrecord_t *record) {
-	if(biton32(default_layer_state) != L_KANA) return true;
-	if(is_kana_chord(keycode)) {
-		process_kana_chord(keycode, record);
-		return false;
-	}
-	if(is_kana(keycode)) {
-		process_record_kana(keycode, record);
-		return false;
-	}
-	return true;
-}
+static uint16_t get_kana_from_chord(uint32_t kana_chord);
 
 static bool is_recently_pressed = false;
 void process_kana_chord(uint16_t keycode, keyrecord_t *record) {
@@ -56,10 +42,10 @@ void process_kana_chord(uint16_t keycode, keyrecord_t *record) {
 			uint8_t c = bitpop32(kana_chord_bit);
 			// tap single key
 			if(c == 1) {
-				register_kana(get_kana_from_keycode(tapping));
+				tap_kana(get_kana_from_keycode(tapping), event);
 			}
 			else if(c > 1) {
-				register_kana_chord(kana_chord_bit);
+				tap_kana(get_kana_from_chord(kana_chord_bit), event);
 			}
 			is_recently_pressed = false;
 		}
@@ -93,508 +79,511 @@ uint32_t kana_note_to_bit(uint16_t chord) {
 }
 
 __attribute__((weak))
-bool additioral_kana_chord(uint32_t kana_chord) {
-	return true;
+uint16_t additional_kana_chord(uint32_t kana_chord) {
+	return KC_NO;
 }
 
-void register_kana_chord(uint32_t kana_chord) {
-	if(!additioral_kana_chord(kana_chord)) return;
+uint16_t get_kana_from_chord(uint32_t kana_chord) {
+	uint16_t additional_kana = additional_kana_chord(kana_chord);
+	if(additional_kana != KC_NO) return additional_kana;
+
 	if(kana_chord == (BIT_CONSONANT_X | BIT_VOWEL_A)) {
-		register_kana(KANA_XA);
+		return KANA_XA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_X | BIT_VOWEL_I)) {
-		register_kana(KANA_XI);
+		return KANA_XI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_X | BIT_VOWEL_U)) {
-		register_kana(KANA_XU);
+		return KANA_XU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_X | BIT_VOWEL_E)) {
-		register_kana(KANA_XE);
+		return KANA_XE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_X | BIT_VOWEL_O)) {
-		register_kana(KANA_XO);
+		return KANA_XO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_X | BIT_VOWEL_YA)) {
-		register_kana(KANA_XYA);
+		return KANA_XYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_X | BIT_VOWEL_YU)) {
-		register_kana(KANA_XYU);
+		return KANA_XYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_X | BIT_VOWEL_YO)) {
-		register_kana(KANA_XYO);
+		return KANA_XYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_A)) {
-		register_kana(KANA_A);
+		return KANA_A;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_I)) {
-		register_kana(KANA_I);
+		return KANA_I;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_U)) {
-		register_kana(KANA_U);
+		return KANA_U;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_E)) {
-		register_kana(KANA_E);
+		return KANA_E;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_O)) {
-		register_kana(KANA_O);
+		return KANA_O;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_YA)) {
-		register_kana(KANA_YA);
+		return KANA_YA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_YU)) {
-		register_kana(KANA_YU);
+		return KANA_YU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_YO)) {
-		register_kana(KANA_YO);
+		return KANA_YO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_YE)) {
-		register_kana(KANA_YE);
+		return KANA_YE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_A)) {
-		register_kana(KANA_KA);
+		return KANA_KA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_I)) {
-		register_kana(KANA_KI);
+		return KANA_KI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_U)) {
-		register_kana(KANA_KU);
+		return KANA_KU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_E)) {
-		register_kana(KANA_KE);
+		return KANA_KE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_O)) {
-		register_kana(KANA_KO);
+		return KANA_KO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_YA)) {
-		register_kana(KANA_KYA);
+		return KANA_KYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_YU)) {
-		register_kana(KANA_KYU);
+		return KANA_KYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_YO)) {
-		register_kana(KANA_KYO);
+		return KANA_KYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_YE)) {
-		register_kana(KANA_KYE);
+		return KANA_KYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_A)) {
-		register_kana(KANA_SA);
+		return KANA_SA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_I)) {
-		register_kana(KANA_SI);
+		return KANA_SI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_U)) {
-		register_kana(KANA_SU);
+		return KANA_SU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_E)) {
-		register_kana(KANA_SE);
+		return KANA_SE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_O)) {
-		register_kana(KANA_SO);
+		return KANA_SO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_YA)) {
-		register_kana(KANA_SYA);
+		return KANA_SYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_YU)) {
-		register_kana(KANA_SYU);
+		return KANA_SYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_YO)) {
-		register_kana(KANA_SYO);
+		return KANA_SYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_YE)) {
-		register_kana(KANA_SYE);
+		return KANA_SYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_A)) {
-		register_kana(KANA_TA);
+		return KANA_TA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_I)) {
-		register_kana(KANA_TI);
+		return KANA_TI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_U)) {
-		register_kana(KANA_TU);
+		return KANA_TU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_E)) {
-		register_kana(KANA_TE);
+		return KANA_TE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_O)) {
-		register_kana(KANA_TO);
+		return KANA_TO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_YA)) {
-		register_kana(KANA_TYA);
+		return KANA_TYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_YU)) {
-		register_kana(KANA_TYU);
+		return KANA_TYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_YO)) {
-		register_kana(KANA_TYO);
+		return KANA_TYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_YE)) {
-		register_kana(KANA_TYE);
+		return KANA_TYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_N | BIT_VOWEL_A)) {
-		register_kana(KANA_NA);
+		return KANA_NA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_N | BIT_VOWEL_I)) {
-		register_kana(KANA_NI);
+		return KANA_NI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_N | BIT_VOWEL_U)) {
-		register_kana(KANA_NU);
+		return KANA_NU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_N | BIT_VOWEL_E)) {
-		register_kana(KANA_NE);
+		return KANA_NE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_N | BIT_VOWEL_O)) {
-		register_kana(KANA_NO);
+		return KANA_NO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_N | BIT_VOWEL_YA)) {
-		register_kana(KANA_NYA);
+		return KANA_NYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_N | BIT_VOWEL_YU)) {
-		register_kana(KANA_NYU);
+		return KANA_NYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_N | BIT_VOWEL_YO)) {
-		register_kana(KANA_NYO);
+		return KANA_NYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_N | BIT_VOWEL_YE)) {
-		register_kana(KANA_NYE);
+		return KANA_NYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_A)) {
-		register_kana(KANA_HA);
+		return KANA_HA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_I)) {
-		register_kana(KANA_HI);
+		return KANA_HI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_U)) {
-		register_kana(KANA_HU);
+		return KANA_HU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_E)) {
-		register_kana(KANA_HE);
+		return KANA_HE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_O)) {
-		register_kana(KANA_HO);
+		return KANA_HO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_YA)) {
-		register_kana(KANA_HYA);
+		return KANA_HYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_YU)) {
-		register_kana(KANA_HYU);
+		return KANA_HYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_YO)) {
-		register_kana(KANA_HYO);
+		return KANA_HYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_YE)) {
-		register_kana(KANA_HYE);
+		return KANA_HYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_M | BIT_VOWEL_A)) {
-		register_kana(KANA_MA);
+		return KANA_MA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_M | BIT_VOWEL_I)) {
-		register_kana(KANA_MI);
+		return KANA_MI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_M | BIT_VOWEL_U)) {
-		register_kana(KANA_MU);
+		return KANA_MU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_M | BIT_VOWEL_E)) {
-		register_kana(KANA_ME);
+		return KANA_ME;
 	}
 	else if(kana_chord == (BIT_CONSONANT_M | BIT_VOWEL_O)) {
-		register_kana(KANA_MO);
+		return KANA_MO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_M | BIT_VOWEL_YA)) {
-		register_kana(KANA_MYA);
+		return KANA_MYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_M | BIT_VOWEL_YU)) {
-		register_kana(KANA_MYU);
+		return KANA_MYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_M | BIT_VOWEL_YO)) {
-		register_kana(KANA_MYO);
+		return KANA_MYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_M | BIT_VOWEL_YE)) {
-		register_kana(KANA_MYE);
+		return KANA_MYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_R | BIT_VOWEL_A)) {
-		register_kana(KANA_RA);
+		return KANA_RA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_R | BIT_VOWEL_I)) {
-		register_kana(KANA_RI);
+		return KANA_RI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_R | BIT_VOWEL_U)) {
-		register_kana(KANA_RU);
+		return KANA_RU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_R | BIT_VOWEL_E)) {
-		register_kana(KANA_RE);
+		return KANA_RE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_R | BIT_VOWEL_O)) {
-		register_kana(KANA_RO);
+		return KANA_RO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_R | BIT_VOWEL_YA)) {
-		register_kana(KANA_RYA);
+		return KANA_RYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_R | BIT_VOWEL_YU)) {
-		register_kana(KANA_RYU);
+		return KANA_RYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_R | BIT_VOWEL_YO)) {
-		register_kana(KANA_RYO);
+		return KANA_RYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_R | BIT_VOWEL_YE)) {
-		register_kana(KANA_RYE);
+		return KANA_RYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_A)) {
-		register_kana(KANA_GA);
+		return KANA_GA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_I)) {
-		register_kana(KANA_GI);
+		return KANA_GI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_U)) {
-		register_kana(KANA_GU);
+		return KANA_GU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_E)) {
-		register_kana(KANA_GE);
+		return KANA_GE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_O)) {
-		register_kana(KANA_GO);
+		return KANA_GO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_YA)) {
-		register_kana(KANA_GYA);
+		return KANA_GYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_YU)) {
-		register_kana(KANA_GYU);
+		return KANA_GYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_YO)) {
-		register_kana(KANA_GYO);
+		return KANA_GYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_YE)) {
-		register_kana(KANA_GYE);
+		return KANA_GYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_A)) {
-		register_kana(KANA_ZA);
+		return KANA_ZA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_I)) {
-		register_kana(KANA_ZI);
+		return KANA_ZI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_U)) {
-		register_kana(KANA_ZU);
+		return KANA_ZU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_E)) {
-		register_kana(KANA_ZE);
+		return KANA_ZE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_O)) {
-		register_kana(KANA_ZO);
+		return KANA_ZO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_YA)) {
-		register_kana(KANA_ZYA);
+		return KANA_ZYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_YU)) {
-		register_kana(KANA_ZYU);
+		return KANA_ZYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_YO)) {
-		register_kana(KANA_ZYO);
+		return KANA_ZYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_YE)) {
-		register_kana(KANA_ZYE);
+		return KANA_ZYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_D | BIT_VOWEL_A)) {
-		register_kana(KANA_DA);
+		return KANA_DA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_D | BIT_VOWEL_I)) {
-		register_kana(KANA_DI);
+		return KANA_DI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_D | BIT_VOWEL_U)) {
-		register_kana(KANA_DU);
+		return KANA_DU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_D | BIT_VOWEL_E)) {
-		register_kana(KANA_DE);
+		return KANA_DE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_D | BIT_VOWEL_O)) {
-		register_kana(KANA_DO);
+		return KANA_DO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_D | BIT_VOWEL_YA)) {
-		register_kana(KANA_DYA);
+		return KANA_DYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_D | BIT_VOWEL_YU)) {
-		register_kana(KANA_DYU);
+		return KANA_DYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_D | BIT_VOWEL_YO)) {
-		register_kana(KANA_DYO);
+		return KANA_DYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_D | BIT_VOWEL_YE)) {
-		register_kana(KANA_DYE);
+		return KANA_DYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_B | BIT_VOWEL_A)) {
-		register_kana(KANA_BA);
+		return KANA_BA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_B | BIT_VOWEL_I)) {
-		register_kana(KANA_BI);
+		return KANA_BI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_B | BIT_VOWEL_U)) {
-		register_kana(KANA_BU);
+		return KANA_BU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_B | BIT_VOWEL_E)) {
-		register_kana(KANA_BE);
+		return KANA_BE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_B | BIT_VOWEL_O)) {
-		register_kana(KANA_BO);
+		return KANA_BO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_B | BIT_VOWEL_YA)) {
-		register_kana(KANA_BYA);
+		return KANA_BYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_B | BIT_VOWEL_YU)) {
-		register_kana(KANA_BYU);
+		return KANA_BYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_B | BIT_VOWEL_YO)) {
-		register_kana(KANA_BYO);
+		return KANA_BYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_B | BIT_VOWEL_YE)) {
-		register_kana(KANA_BYE);
+		return KANA_BYE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_P | BIT_VOWEL_A)) {
-		register_kana(KANA_PA);
+		return KANA_PA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_P | BIT_VOWEL_I)) {
-		register_kana(KANA_PI);
+		return KANA_PI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_P | BIT_VOWEL_U)) {
-		register_kana(KANA_PU);
+		return KANA_PU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_P | BIT_VOWEL_E)) {
-		register_kana(KANA_PE);
+		return KANA_PE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_P | BIT_VOWEL_O)) {
-		register_kana(KANA_PO);
+		return KANA_PO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_P | BIT_VOWEL_YA)) {
-		register_kana(KANA_PYA);
+		return KANA_PYA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_P | BIT_VOWEL_YU)) {
-		register_kana(KANA_PYU);
+		return KANA_PYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_P | BIT_VOWEL_YO)) {
-		register_kana(KANA_PYO);
+		return KANA_PYO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_P | BIT_VOWEL_YE)) {
-		register_kana(KANA_PYE);
+		return KANA_PYE;
 	}
 	else if(kana_chord == BIT_VOWEL_WA) {
-		register_kana(KANA_WA);
+		return KANA_WA;
 	}
 	else if(kana_chord == BIT_VOWEL_WO) {
-		register_kana(KANA_WO);
+		return KANA_WO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_WA)) {
-		register_kana(KANA_WHA);
+		return KANA_WHA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_WO)) {
-		register_kana(KANA_WHO);
+		return KANA_WHO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_WI)) {
-		register_kana(KANA_WI);
+		return KANA_WI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_A | BIT_VOWEL_WE)) {
-		register_kana(KANA_WE);
+		return KANA_WE;
 	}
 	else if(kana_chord == BIT_VOWEL_WI) {
-		register_kana(KANA_WYI);
+		return KANA_WYI;
 	}
 	else if(kana_chord == BIT_VOWEL_WE) {
-		register_kana(KANA_WYE);
+		return KANA_WYE;
 	}
 	else if(kana_chord == BIT_VOWEL_WY) {
-		register_kana(KANA_XWA);
+		return KANA_XWA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_WA)) {
-		register_kana(KANA_QA);
+		return KANA_QA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_WI)) {
-		register_kana(KANA_QI);
+		return KANA_QI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_WE)) {
-		register_kana(KANA_QE);
+		return KANA_QE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_WO)) {
-		register_kana(KANA_QO);
+		return KANA_QO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_K | BIT_VOWEL_WY)) {
-		register_kana(KANA_QWA);
+		return KANA_QWA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_WA)) {
-		register_kana(KANA_GWA);
+		return KANA_GWA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_WI)) {
-		register_kana(KANA_GWI);
+		return KANA_GWI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_WE)) {
-		register_kana(KANA_GWE);
+		return KANA_GWE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_G | BIT_VOWEL_WO)) {
-		register_kana(KANA_GWO);
+		return KANA_GWO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_S | BIT_VOWEL_WI)) {
-		register_kana(KANA_SWI);
+		return KANA_SWI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_Z | BIT_VOWEL_WI)) {
-		register_kana(KANA_ZWI);
+		return KANA_ZWI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_WA)) {
-		register_kana(KANA_TSA);
+		return KANA_TSA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_WI)) {
-		register_kana(KANA_TSI);
+		return KANA_TSI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_WE)) {
-		register_kana(KANA_TSE);
+		return KANA_TSE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_T | BIT_VOWEL_WO)) {
-		register_kana(KANA_TSO);
+		return KANA_TSO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_WA)) {
-		register_kana(KANA_FA);
+		return KANA_FA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_WI)) {
-		register_kana(KANA_FI);
+		return KANA_FI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_WE)) {
-		register_kana(KANA_FE);
+		return KANA_FE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_WO)) {
-		register_kana(KANA_FO);
+		return KANA_FO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_H | BIT_VOWEL_WY)) {
-		register_kana(KANA_FYU);
+		return KANA_FYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_V | BIT_VOWEL_WA)) {
-		register_kana(KANA_VA);
+		return KANA_VA;
 	}
 	else if(kana_chord == (BIT_CONSONANT_V | BIT_VOWEL_WI)) {
-		register_kana(KANA_VI);
+		return KANA_VI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_V | BIT_VOWEL_WE)) {
-		register_kana(KANA_VE);
+		return KANA_VE;
 	}
 	else if(kana_chord == (BIT_CONSONANT_V | BIT_VOWEL_WO)) {
-		register_kana(KANA_VO);
+		return KANA_VO;
 	}
 	else if(kana_chord == (BIT_CONSONANT_V | BIT_VOWEL_WU)) {
-		register_kana(KANA_VU);
+		return KANA_VU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_V | BIT_VOWEL_WY)) {
-		register_kana(KANA_VYU);
+		return KANA_VYU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_TH | BIT_VOWEL_WI)) {
-		register_kana(KANA_THI);
+		return KANA_THI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_TH | BIT_VOWEL_WU)) {
-		register_kana(KANA_TWU);
+		return KANA_TWU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_TH | BIT_VOWEL_WY)) {
-		register_kana(KANA_THU);
+		return KANA_THU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_DH | BIT_VOWEL_WI)) {
-		register_kana(KANA_DHI);
+		return KANA_DHI;
 	}
 	else if(kana_chord == (BIT_CONSONANT_DH | BIT_VOWEL_WU)) {
-		register_kana(KANA_DWU);
+		return KANA_DWU;
 	}
 	else if(kana_chord == (BIT_CONSONANT_DH | BIT_VOWEL_WY)) {
-		register_kana(KANA_DHU);
+		return KANA_DHU;
 	}
+	return KC_NO;
 }

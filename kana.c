@@ -6,43 +6,8 @@
 #include "util_user.h" //in_range
 #include "kana.h"
 
-bool is_commit_mode = false;
-bool is_practice_mode = false;
-
-static inline void commit(void) {
-	#ifdef COMMIT_AT_PUNCTUATION
-	if(!is_practice_mode) {
-		tap_code(KC_ENT);
-	}
-	#endif
-}
-
 bool is_kana(uint16_t keycode) {
 	return in_range(keycode, KANA_A, KANA_ZRBRC);
-}
-
-void tap_kana(uint16_t kana, keyevent_t event) {
-	process_record_kana(kana, &(keyrecord_t){
-		// .tap = (tap_t){},
-		.event.key = event.key,
-		.event.time = event.time,
-		.event.pressed = true
-	});
-}
-
-bool process_record_kana(uint16_t keycode, keyrecord_t *record) {
-	if(!is_kana(keycode)) return true;
-
-	keyevent_t event = record->event;
-	if(event.pressed) {
-		if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
-			tap_code(keymap_key_to_keycode(0, event.key));
-		}
-		else {
-			register_kana(keycode);
-		}
-	}
-	return false;
 }
 
 void register_kana(uint16_t keycode) {
@@ -592,23 +557,18 @@ void register_kana(uint16_t keycode) {
 		// 記号
 		case KANA_COMM:
 			tap_code(KC_COMM);
-			commit();
 			break;
 		case KANA_DOT:
 			tap_code(KC_DOT);
-			commit();
 			break;
 		case KANA_ZSLSH:
 			SEND_STRING("z/");
-			commit();
 			break;
 		case KANA_ZDOT:
 			SEND_STRING("z.");
-			commit();
 			break;
 		case KANA_ZCOMM:
 			SEND_STRING("z,");
-			commit();
 			break;
 		case KANA_ZH:
 			SEND_STRING("zh");
@@ -634,5 +594,4 @@ void register_kana(uint16_t keycode) {
 		default:
 			break;
 	}
-	if(is_commit_mode) tap_code(KC_ENT);
 }

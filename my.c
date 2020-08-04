@@ -8,6 +8,7 @@
 #ifndef NO_JAPANESE
 #include "kana.h"
 #include "kana_chord.h"
+#include "ime.h"
 #endif
 
 #define SFT_LT(kc) LT(L_SHIFT, kc)
@@ -24,17 +25,6 @@
 #define STABLE CLEAR
 #endif
 
-void numlock_on(void) {
-	if(IS_HOST_LED_OFF(USB_LED_NUM_LOCK)) {
-		tap_code(KC_NLCK);
-	}
-}
-void numlock_off(void) {
-	if(IS_HOST_LED_ON(USB_LED_NUM_LOCK)) {
-		tap_code(KC_NLCK);
-	}
-}
-
 void matrix_scan_user(void) {
 #ifndef NO_JAPANESE
 	// matrix_scan_kana();
@@ -44,88 +34,87 @@ void matrix_scan_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	keyevent_t event = record->event;
 #ifndef NO_JAPANESE
-	if(!process_kana(keycode, record)) return false;
+	if(!process_ime(keycode, record)) return false;
 #endif
 	switch(keycode) {
 	case CLEAR:
 		if(event.pressed) {
 			clear_mods();
 			layer_clear();
-		}
-		return false;
-	case IME:
-		if(event.pressed) {
-			tap_code(JP_ZHTG);
 #ifndef NO_JAPANESE
-			uint8_t default_layer = biton32(default_layer_state);
-			// TODO: use raw_hid to detect ime state
-			if(default_layer == L_BASE) {
-				numlock_on();
-			}
-			// L_KANA
-			else {
-				if(!is_practice_mode) {
-					numlock_off();
-				}
-				else {
-					is_practice_mode = false;
-					default_layer_state_set_user(default_layer_state);
-				}
-			}
+			reset_ime();
 #endif
 		}
 		return false;
 #ifndef NO_JAPANESE
-	case COMMIT_MODE:
-		if(event.pressed) {
-			is_commit_mode = !is_commit_mode;
-			is_practice_mode = false;
-			// to update led indicator
-			default_layer_state_set_user(default_layer_state);
-		}
-		return false;
-	case PRACTICE_MODE:
-		if(event.pressed) {
-			uint8_t default_layer = biton32(default_layer_state);
-			is_commit_mode = false;
-			if(default_layer == L_BASE) {
-				is_practice_mode = true;
-				numlock_on();
-			}
-			//L_KANA
-			else {
-				if(is_practice_mode) {
-					is_practice_mode = false;
-					numlock_off();
-				}
-				// IME is turned on
-				else {
-					tap_code(JP_ZHTG);
-					is_practice_mode = true;
-					// to update led indicator
-					default_layer_state_set_user(default_layer_state);
-				}
-			}
-		}
-		return false;
 	case LALT_T(KC_COMM):
 		// use default process other than KANA layer
-		if(biton32(default_layer_state | layer_state) != L_KANA) {
-			return true;
-		}
+		if(!is_default_layer_kana()) return true;
 		// use default process for mod
 		if(record->tap.count > 0) {
-			return process_record_kana(KANA_COMM ,record);
+			return process_ime(KANA_COMM ,record);
 		}
 		return true;
 	case RALT_T(KC_DOT):
 		// use default process other than KANA layer
-		if(biton32(default_layer_state | layer_state) != L_KANA) {
-			return true;
-		}
+		if(!is_default_layer_kana()) return true;
 		// use default process for mod
 		if(record->tap.count > 0) {
-			return process_record_kana(KANA_DOT ,record);
+			return process_ime(KANA_DOT ,record);
+		}
+		return true;
+	case LSFT_T(KC_SPC):
+		// use default process other than KANA layer
+		if(!is_default_layer_kana()) return true;
+		// use default process for mod
+		if(record->tap.count > 0) {
+			return process_ime(IM_LSPC ,record);
+		}
+		return true;
+	case RSFT_T(KC_SPC):
+		// use default process other than KANA layer
+		if(!is_default_layer_kana()) return true;
+		// use default process for mod
+		if(record->tap.count > 0) {
+			return process_ime(IM_RSPC ,record);
+		}
+		return true;
+	case FN_T(KC_ENT):
+		// use default process other than KANA layer
+		if(!is_default_layer_kana()) return true;
+		// use default process for mod
+		if(record->tap.count > 0) {
+			return process_ime(IM_LENT ,record);
+		}
+		return true;
+	// use KC_PENT to distinguish between left and right
+	case FN_T(KC_PENT):
+		// use default process for mod
+		if(record->tap.count > 0) {
+			if(!is_default_layer_kana()) {
+				if(event.pressed) {
+					register_code(KC_ENT);
+				}
+				else { unregister_code(KC_ENT); }
+				return false;
+			}
+			else { return process_ime(IM_RENT ,record); }
+		}
+		return true;
+	case RCTL_T(KC_TAB):
+		// use default process other than KANA layer
+		if(!is_default_layer_kana()) return true;
+		// use default process for mod
+		if(record->tap.count > 0) {
+			return process_ime(KC_TAB ,record);
+		}
+		return true;
+	case LCTL_T(KC_ESC):
+		// use default process other than KANA layer
+		if(!is_default_layer_kana()) return true;
+		// use default process for mod
+		if(record->tap.count > 0) {
+			return process_ime(KC_ESC ,record);
 		}
 		return true;
 #endif
@@ -157,12 +146,7 @@ void led_set_user(uint8_t usb_led) {
 	ergodox_led_all_set(LED_BRIGHTNESS_LO);
 
 #ifndef NO_JAPANESE
-	// use Num_Lock to recognize that
-	// modal editor change ime state
-	if(IS_LED_ON(usb_led, USB_LED_NUM_LOCK)) {
-		default_layer_set(1UL << L_KANA);
-	}
-	else default_layer_set(1UL << L_BASE);
+	detect_ime_change(usb_led);
 #endif
 
 	if(IS_LED_ON(usb_led, USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
@@ -180,17 +164,24 @@ layer_state_t default_layer_state_set_user(layer_state_t state) {
 // 	if(layer == L_STABLE) ergodox_right_led_1_on();
 #endif
 	if(layer == L_KANA) {
-		if(is_commit_mode) {
-			ergodox_right_led_1_on();
-			ergodox_right_led_3_on();
-		}
-		else if(is_practice_mode) {
+		if(is_practice_mode()) {
 			ergodox_right_led_1_off();
 			ergodox_right_led_3_on();
 		}
 		else {
-			ergodox_right_led_1_on();
-			ergodox_right_led_3_off();
+			uint8_t im_state = get_im_state();
+			if(im_state == IM_STATE_HIRAGANA_DIRECT) {
+				ergodox_right_led_1_on();
+				ergodox_right_led_3_on();
+			}
+			else if(im_state == IM_STATE_KATAKANA_DIRECT) {
+				ergodox_right_led_1_on();
+				ergodox_right_led_2_on();
+			}
+			else {
+				ergodox_right_led_1_on();
+				ergodox_right_led_3_off();
+			}
 		}
 	}
 	else {
@@ -209,27 +200,26 @@ void suspend_wakeup_init_user(void) {
 	default_layer_state_set_user(default_layer_state);
 }
 
-bool additioral_kana_chord(uint32_t kana_chord) {
+uint16_t additional_kana_chord(uint32_t kana_chord) {
 	if(kana_chord == BIT_CONSONANT_G) {
-		register_kana(KANA_GA);
+		return KANA_GA;
 	}
 	else if(kana_chord == BIT_CONSONANT_Z) {
-		register_kana(KANA_ZI);
+		return KANA_ZI;
 	}
 	else if(kana_chord == BIT_CONSONANT_D) {
-		register_kana(KANA_DA);
+		return KANA_DA;
 	}
 	else if(kana_chord == BIT_CONSONANT_B) {
-		register_kana(KANA_BA);
+		return KANA_BA;
 	}
 	else if(kana_chord == BIT_CONSONANT_DH) {
-		register_kana(KANA_DE);
+		return KANA_DE;
 	}
 	else if(kana_chord == BIT_CONSONANT_X) {
-		register_kana(KANA_DO);
+		return KANA_DO;
 	}
-	else return true;
-	return false;
+	return KC_NO;
 }
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -253,7 +243,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_WBAK, KC_WFWD,
 		KC_WSCH,
-		IME, FN_T(KC_ENT), RSFT_T(KC_SPC)
+		IME, FN_T(KC_PENT), RSFT_T(KC_SPC)
 	),
 #ifdef ENABLE_STABLE_LAYER
 	[L_STABLE] = LAYOUT_ergodox(
@@ -283,9 +273,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[L_KANA] = LAYOUT_ergodox(
 		// left hand
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_MHEN, VOWEL_I(KANA_I), VOWEL_E(KANA_RU), VOWEL_YE(KANA_MA), KC_TRNS,
+		KC_TRNS, KC_TRNS, IM_KATAKANA, VOWEL_I(KANA_I), VOWEL_E(KANA_RU), VOWEL_YE(KANA_MA), KC_TRNS,
 		KC_TRNS, KC_TRNS, KANA_TU, VOWEL_O(KANA_NO), VOWEL_A(KANA_NN), VOWEL_YA(KANA_KU),
-		KC_TRNS, KC_TRNS, KC_KANA, VOWEL_YO(KANA_KO), VOWEL_U(KANA_U), VOWEL_YU(KANA_XTU), KC_TRNS,
+		KC_TRNS, KC_TRNS, IM_HIRAGANA, VOWEL_YO(KANA_KO), VOWEL_U(KANA_U), VOWEL_YU(KANA_XTU), KC_TRNS,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		// thumb
 		KC_TRNS, KC_TRNS,
@@ -305,21 +295,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 #endif
 	[L_FN] = LAYOUT_ergodox(
 		// left hand
-		KC_F4, KC_F5, KC_LGUI, KC_LALT, KC_LCTL, KC_NO, KC_NO,
-		KC_F2, KC_F3, KC_SLCK, JP_COLN, JP_QUES, JP_AT, KC_TRNS,
-		KC_F10, KC_F1, KC_F11, JP_LBRC, JP_RBRC, JP_HASH,
-		KC_BRIU, KC_BRID, KC_F12, JP_LCBR, JP_RCBR, JP_DLR, KC_TRNS,
-		KC_NO, KC_NO, KC_NO, JP_GRV, JP_BSLS,
+		KC_NO, KC_NO, KC_LGUI, KC_LALT, KC_LCTL, KC_NO, KC_NO,
+		KC_BRIU, KC_BRID, KC_SLCK, JP_COLN, JP_QUES, JP_AT, KC_TRNS,
+		KC_F1, KC_F10, KC_APP, JP_LBRC, JP_RBRC, JP_HASH,
+		KC_F3, KC_F2, KC_NO, JP_LCBR, JP_RCBR, JP_DLR, KC_TRNS,
+		KC_F6, KC_F5, KC_F4, JP_GRV, JP_BSLS,
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
 		KC_LSFT, KC_TRNS, KC_TRNS,
 		// right hand
 		CLEAR, KC_NO, KC_RCTL, KC_RALT, KC_RGUI, KC_MPRV, KC_MNXT,
-		KC_TRNS, JP_PIPE, JP_EXLM, JP_ASTR, KC_APP, KC_MUTE, KC_MPLY,
+		KC_TRNS, JP_PIPE, JP_EXLM, JP_ASTR, KC_PAUS, KC_MUTE, KC_MPLY,
 		JP_AMPR, JP_EQL, JP_PLUS, KC_PSCR, KC_VOLD, KC_VOLU,
-		KC_TRNS, JP_CIRC, JP_LT, JP_GT, KC_PAUS, KC_F6, KC_F7,
-		JP_PERC, JP_TILD, KC_NO, KC_F8, KC_F9,
+		KC_TRNS, JP_CIRC, JP_LT, JP_GT, KC_NO, KC_F11, KC_F12,
+		JP_PERC, JP_TILD, KC_F7, KC_F8, KC_F9,
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,

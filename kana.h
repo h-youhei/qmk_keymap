@@ -4,11 +4,7 @@
 #include "action.h" //keyrecord_t
 #include "my.h" //KANA_RANGE
 
-extern bool is_practice_mode;
-extern bool is_commit_mode;
 bool is_kana(uint16_t keycode);
-void tap_kana(uint16_t kana, keyevent_t event);
-bool process_record_kana(uint16_t keycode, keyrecord_t *record);
 void register_kana(uint16_t keycode);
 
 enum kana_code {
@@ -206,6 +202,7 @@ enum kana_code {
 	KANA_ZL,
 	KANA_ZLBRC, //『
 	KANA_ZRBRC,
+	IME_RANGE,
 };
 
 #define KANA_ZYA KANA_JA

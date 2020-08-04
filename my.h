@@ -13,10 +13,10 @@ enum Layer {
 	L_FN,
 };
 
+#define LAYER_KANA L_KANA
+
 enum user_code {
 	CLEAR = SAFE_RANGE,
-	IME,
-	PRACTICE_MODE,
 #ifndef NO_JAPANESE
 	COMMIT_MODE,
 	KANA_RANGE,
