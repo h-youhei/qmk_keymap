@@ -442,26 +442,28 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 	case KC_BSPC:
 	case KC_DEL:
 	// Predict: cansel, delete char, predict
-		if(!event.pressed) return false;
-		switch(im_state) {
-		case IM_STATE_CONVERT:
-			tap_code(KC_ESC);
-			tap_code(keycode);
-			im_state = IM_STATE_COMPOSITION;
-			// broken when only one letter is left
-			// convert_sequence();
-			break;
-		case IM_STATE_PREDICT:
-			tap_code(KC_ESC);
-			tap_code(keycode);
-			im_state = IM_STATE_COMPOSITION;
-			// broken when only one letter is left
-			// tap_code(KC_TAB);
-			break;
-		default:
-			tap_code(keycode);
-			break;
+		if(event.pressed) {
+			switch(im_state) {
+			case IM_STATE_CONVERT:
+				tap_code(KC_ESC);
+				register_code(keycode);
+				im_state = IM_STATE_COMPOSITION;
+				// broken when only one letter is left
+				// convert_sequence();
+				break;
+			case IM_STATE_PREDICT:
+				tap_code(KC_ESC);
+				register_code(keycode);
+				im_state = IM_STATE_COMPOSITION;
+				// broken when only one letter is left
+				// tap_code(KC_TAB);
+				break;
+			default:
+				register_code(keycode);
+				break;
+			}
 		}
+		else { unregister_code(keycode); }
 		return false;
 	case KC_HOME:
 	case KC_END:
