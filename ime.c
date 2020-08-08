@@ -242,6 +242,24 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		return false;
 	}
 	switch(keycode) {
+	case KC_MINS:
+	// PreComposition: char
+	// Convert: cansel, char, convert
+	// Predict: commit(by ime), char
+		if(!event.pressed) return false;
+		if(im_state == IM_STATE_CONVERT) {
+			tap_code(KC_ESC);
+			tap_code(keycode);
+			convert_sequence();
+		}
+		else {
+			tap_code(keycode);
+			if(is_commit_mode()) {
+				tap_code(KC_ENT);
+			}
+			else { im_state = IM_STATE_COMPOSITION; }
+		}
+		return false;
 	case IM_HIRAGANA:
 	// PreComposition: turn on hiragana mode
 	// HiraganaDirect: turn off hiragana mode
