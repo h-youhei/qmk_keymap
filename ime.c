@@ -10,9 +10,11 @@
 #include "led.h" //USB_LED_*
 #include "util.h" //biton32
 
+static bool is_commit_mode(void);
+static void handle_cursor(uint16_t keycode);
+static void reset_cursor(void);
 static void numlock_on(void);
 static void numlock_off(void);
-static bool is_commit_mode(void);
 static void convert_sequence(void);
 static void predict_sequence(void);
 
@@ -25,11 +27,52 @@ bool is_practice_mode() { return _is_practice_mode; }
 void reset_ime() {
 	im_state = IM_STATE_PRECOMPOSITION;
 	_is_practice_mode = false;
+	reset_cursor();
 	numlock_off();
 }
 
 static bool is_commit_mode() {
 	return (im_state == IM_STATE_HIRAGANA_DIRECT || im_state == IM_STATE_KATAKANA_DIRECT);
+}
+
+uint8_t char_count = 0;
+// after what count of character
+uint8_t cursor_position = 0;
+static void reset_cursor() {
+	char_count = 0;
+	cursor_position = 0;
+}
+static void handle_cursor(uint16_t keycode) {
+	if(is_kana(keycode) || keycode == KC_MINS) {
+		char_count++;
+		cursor_position++;
+		return;
+	}
+	switch(keycode) {
+	case KC_LEFT:
+		if(cursor_position != 0) cursor_position--;
+		break;
+	case KC_RGHT:
+		if(cursor_position < char_count) cursor_position++;
+		break;
+	case KC_HOME:
+		cursor_position = 0;
+		break;
+	case KC_END:
+		cursor_position = char_count;
+		break;
+	case KC_BSPC:
+		if(cursor_position != 0) {
+			cursor_position--;
+			char_count--;
+		}
+		break;
+	case KC_DEL:
+		if(cursor_position < char_count) char_count--;
+		break;
+	default:
+		break;
+	}
 }
 
 bool is_default_layer_kana() {
@@ -123,6 +166,10 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 	if(_is_practice_mode) {
 		register_kana(keycode);
 	}
+	else if(is_commit_mode()) {
+		register_kana(keycode);
+		tap_code(KC_ENT);
+	}
 	else if(need_commit(keycode)) {
 	// for punctuation character
 	// PreComposition: char, commit
@@ -134,6 +181,7 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 		register_kana(keycode);
 		tap_code(KC_ENT);
 		im_state = IM_STATE_PRECOMPOSITION;
+		reset_cursor();
 	}
 	else {
 	// for normal character
@@ -143,14 +191,13 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 		if(im_state == IM_STATE_CONVERT) {
 			tap_code(KC_ESC);
 		}
+		else if(im_state == IM_STATE_PREDICT) {
+			reset_cursor();
+		}
 		register_kana(keycode);
-		if(is_commit_mode()) {
-			tap_code(KC_ENT);
-		}
-		else {
-			convert_sequence();
-			im_state = IM_STATE_CONVERT;
-		}
+		convert_sequence();
+		im_state = IM_STATE_CONVERT;
+		handle_cursor(keycode);
 	}
 	return false;
 }
@@ -173,6 +220,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			else {
 				// TODO: use raw_hid to detect ime state
 				numlock_off();
+				reset_cursor();
 			}
 		}
 		// IME: off to on, practice: off
@@ -199,6 +247,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				_is_practice_mode = true;
 				// to update led indicator
 				default_layer_state_set_user(default_layer_state);
+				reset_cursor();
 			}
 		}
 		// IME: off, practice: off to on
@@ -233,10 +282,12 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			tap_code(keycode);
 			tap_code(KC_ENT);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		default:
 			tap_code(keycode);
 			tap_code(KC_ENT);
+			reset_cursor();
 			break;
 		}
 		return false;
@@ -247,17 +298,26 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 	// Convert: cansel, char, convert
 	// Predict: commit(by ime), char
 		if(!event.pressed) return false;
-		if(im_state == IM_STATE_CONVERT) {
+		if(is_commit_mode()) {
+			tap_code(keycode);
+			tap_code(KC_ENT);
+		}
+		else if(im_state == IM_STATE_PREDICT) {
+			reset_cursor();
+			tap_code(keycode);
+			convert_sequence();
+			handle_cursor(keycode);
+		}
+		else if(im_state == IM_STATE_CONVERT) {
 			tap_code(KC_ESC);
 			tap_code(keycode);
 			convert_sequence();
+			handle_cursor(keycode);
 		}
 		else {
 			tap_code(keycode);
-			if(is_commit_mode()) {
-				tap_code(KC_ENT);
-			}
-			else { im_state = IM_STATE_COMPOSITION; }
+			im_state = IM_STATE_COMPOSITION;
+			handle_cursor(keycode);
 		}
 		return false;
 	case IM_HIRAGANA:
@@ -281,6 +341,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			tap_code(KC_F6);
 			tap_code(KC_ENT);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		default:
 			break;
@@ -312,6 +373,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			tap_code(KC_F7);
 			tap_code(KC_ENT);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		default:
 			break;
@@ -326,12 +388,14 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		case IM_STATE_COMPOSITION:
 			tap_code(KC_ENT);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		case IM_STATE_CONVERT:
 		case IM_STATE_PREDICT:
 			tap_code(KC_ESC);
 			tap_code(KC_ENT);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		default:
 			tap_code(KC_SPC);
@@ -351,6 +415,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		case IM_STATE_PREDICT:
 			tap_code(KC_ENT);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		default:
 			tap_code(KC_SPC);
@@ -367,6 +432,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			tap_code(KC_ENT);
 			tap_code(KC_ENT);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		case IM_STATE_CONVERT:
 		case IM_STATE_PREDICT:
@@ -374,6 +440,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			tap_code(KC_ENT);
 			tap_code(KC_ENT);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		default:
 			tap_code(KC_ENT);
@@ -391,6 +458,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			tap_code(KC_ENT);
 			tap_code(KC_ENT);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		default:
 			tap_code(KC_ENT);
@@ -424,11 +492,13 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		case IM_STATE_COMPOSITION:
 			tap_code(KC_ESC);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		case IM_STATE_CONVERT:
 			tap_code(KC_ESC);
 			tap_code(KC_ESC);
 			im_state = IM_STATE_PRECOMPOSITION;
+			reset_cursor();
 			break;
 		case IM_STATE_PREDICT:
 			tap_code(KC_ESC);
@@ -446,17 +516,28 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			switch(im_state) {
 			case IM_STATE_CONVERT:
 				tap_code(KC_ESC);
-				register_code(keycode);
-				im_state = IM_STATE_COMPOSITION;
-				// broken when only one letter is left
-				// convert_sequence();
+				tap_code(keycode);
+				handle_cursor(keycode);
+				// shrink and expand segment don't change cursor on Mozc
+				// handle_cursor(keycode);
+				if(char_count != 0) {
+					convert_sequence();
+				}
+				else im_state = IM_STATE_PRECOMPOSITION;
 				break;
 			case IM_STATE_PREDICT:
 				tap_code(KC_ESC);
-				register_code(keycode);
-				im_state = IM_STATE_COMPOSITION;
-				// broken when only one letter is left
-				// tap_code(KC_TAB);
+				tap_code(keycode);
+				handle_cursor(keycode);
+				// handle_cursor(keycode);
+				if(char_count != 0) {
+					predict_sequence();
+				}
+				else im_state = IM_STATE_PRECOMPOSITION;
+				break;
+			case IM_STATE_COMPOSITION:
+				tap_code(keycode);
+				handle_cursor(keycode);
 				break;
 			default:
 				register_code(keycode);
@@ -467,33 +548,23 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		return false;
 	case KC_HOME:
 	case KC_END:
-	// Predict: cansel, move cursor, predict
+	//  : move cursor
 	// Convert: move segment
 		if(!event.pressed) return false;
-		switch(im_state) {
-		case IM_STATE_PREDICT:
-			tap_code(KC_ESC);
-			tap_code(keycode);
-			im_state = IM_STATE_COMPOSITION;
-			break;
-		default:
-			tap_code(keycode);
-			break;
+		tap_code(keycode);
+		if(im_state == IM_STATE_COMPOSITION) {
+			handle_cursor(keycode);
 		}
 		return false;
 	case KC_LEFT:
 	case KC_RGHT:
-	// Composition, Convert: expand/shrink segment
+	// Composition: move cursor
+	// Convert: expand/shrink segment
 		if(!event.pressed) return false;
 		switch(im_state) {
 		case IM_STATE_COMPOSITION:
-			add_weak_mods(MOD_LSFT);
-			send_keyboard_report();
 			tap_code(keycode);
-			del_weak_mods(MOD_LSFT);
-			send_keyboard_report();
-			convert_sequence();
-			im_state = IM_STATE_CONVERT;
+			handle_cursor(keycode);
 			break;
 		case IM_STATE_CONVERT:
 			add_weak_mods(MOD_LSFT);
@@ -503,19 +574,18 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			send_keyboard_report();
 			convert_sequence();
 			break;
-	// Predict: cansel, move cursor, predict
 		default:
 			tap_code(keycode);
 			break;
 		}
 		return false;
 	case KC_UP:
-	// Composition, Convert: select next segment
+	// Composition: convert backward
+	// Convert: select next segment
 		if(!event.pressed) return false;
 		switch(im_state) {
 		case IM_STATE_COMPOSITION:
-			tap_code(KC_RGHT);
-			convert_sequence();
+			tap_code(KC_UP);
 			im_state = IM_STATE_CONVERT;
 			break;
 		case IM_STATE_CONVERT:
@@ -528,12 +598,12 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		}
 		return false;
 	case KC_DOWN:
-	// Composition, Convert: select prev segment
+	// Composition: convert
+	// Convert: select prev segment
 		if(!event.pressed) return false;
 		switch(im_state) {
 		case IM_STATE_COMPOSITION:
-			tap_code(KC_LEFT);
-			convert_sequence();
+			tap_code(KC_DOWN);
 			im_state = IM_STATE_CONVERT;
 			break;
 		case IM_STATE_CONVERT:
@@ -546,10 +616,28 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		}
 		return false;
 	case KC_HENK:
+	// PreComposition: reconvert
+	// Composition: convert
+	// Predict: cansel, convert
+	// Convert: cansel to Composition
 		if(!event.pressed) return false;
-		tap_code(keycode);
-		if(im_state == IM_STATE_COMPOSITION) {
+		switch(im_state) {
+		case IM_STATE_COMPOSITION:
+			convert_sequence();
 			im_state = IM_STATE_CONVERT;
+			break;
+		case IM_STATE_PREDICT:
+			tap_code(KC_ESC);
+			convert_sequence();
+			im_state = IM_STATE_CONVERT;
+			break;
+		case IM_STATE_CONVERT:
+			tap_code(KC_ESC);
+			im_state = IM_STATE_COMPOSITION;
+			break;
+		default:
+			tap_code(keycode);
+			break;
 		}
 		return false;
 	}
