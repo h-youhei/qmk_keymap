@@ -560,60 +560,68 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 	case KC_RGHT:
 	// Composition: move cursor
 	// Convert: expand/shrink segment
-		if(!event.pressed) return false;
-		switch(im_state) {
-		case IM_STATE_COMPOSITION:
-			tap_code(keycode);
-			handle_cursor(keycode);
-			break;
-		case IM_STATE_CONVERT:
-			add_weak_mods(MOD_LSFT);
-			send_keyboard_report();
-			tap_code(keycode);
-			del_weak_mods(MOD_LSFT);
-			send_keyboard_report();
-			convert_sequence();
-			break;
-		default:
-			tap_code(keycode);
-			break;
+		if(event.pressed) {
+			switch(im_state) {
+			case IM_STATE_COMPOSITION:
+				tap_code(keycode);
+				handle_cursor(keycode);
+				break;
+			case IM_STATE_CONVERT:
+				add_weak_mods(MOD_LSFT);
+				send_keyboard_report();
+				tap_code(keycode);
+				del_weak_mods(MOD_LSFT);
+				send_keyboard_report();
+				convert_sequence();
+				break;
+			case IM_STATE_PREDICT:
+				tap_code(keycode);
+			default:
+				register_code(keycode);
+				break;
+			}
 		}
+		else { unregister_code(keycode); }
 		return false;
 	case KC_UP:
 	// Composition: convert backward
 	// Convert: select next segment
-		if(!event.pressed) return false;
-		switch(im_state) {
-		case IM_STATE_COMPOSITION:
-			tap_code(KC_UP);
-			im_state = IM_STATE_CONVERT;
-			break;
-		case IM_STATE_CONVERT:
-			tap_code(KC_RGHT);
-			convert_sequence();
-			break;
-		default:
-			tap_code(keycode);
-			break;
+		if(event.pressed) {
+			switch(im_state) {
+			case IM_STATE_COMPOSITION:
+				tap_code(KC_UP);
+				im_state = IM_STATE_CONVERT;
+				break;
+			case IM_STATE_CONVERT:
+				tap_code(KC_RGHT);
+				convert_sequence();
+				break;
+			default:
+				register_code(keycode);
+				break;
+			}
 		}
+		else { unregister_code(keycode); }
 		return false;
 	case KC_DOWN:
 	// Composition: convert
 	// Convert: select prev segment
-		if(!event.pressed) return false;
-		switch(im_state) {
-		case IM_STATE_COMPOSITION:
-			tap_code(KC_DOWN);
-			im_state = IM_STATE_CONVERT;
-			break;
-		case IM_STATE_CONVERT:
-			tap_code(KC_LEFT);
-			convert_sequence();
-			break;
-		default:
-			tap_code(keycode);
-			break;
+		if(event.pressed) {
+			switch(im_state) {
+			case IM_STATE_COMPOSITION:
+				tap_code(KC_DOWN);
+				im_state = IM_STATE_CONVERT;
+				break;
+			case IM_STATE_CONVERT:
+				tap_code(KC_LEFT);
+				convert_sequence();
+				break;
+			default:
+				register_code(keycode);
+				break;
+			}
 		}
+		else { unregister_code(keycode); }
 		return false;
 	case KC_HENK:
 	// PreComposition: reconvert
