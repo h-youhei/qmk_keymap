@@ -3,7 +3,7 @@
 #include "keymap.h" //keymap_key_to_keycode
 
 bool in_range(uint16_t keycode, uint16_t min, uint16_t max) {
-	return keycode >= min && keycode < max;
+	return keycode >= min && keycode <= max;
 }
 
 uint16_t get_keycode_from_keypos(keypos_t keypos) {
