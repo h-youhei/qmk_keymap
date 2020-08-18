@@ -110,6 +110,7 @@ void detect_ime_change(uint8_t usb_led) {
 		default:
 			break;
 		}
+		reset_cursor();
 	}
 }
 
