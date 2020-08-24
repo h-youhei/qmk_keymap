@@ -10,6 +10,7 @@
 #endif
 
 uint8_t get_im_state(void);
+void im_state_set_user(uint8_t im_state);
 bool is_practice_mode(void);
 bool is_default_layer_kana(void);
 void reset_ime(void);

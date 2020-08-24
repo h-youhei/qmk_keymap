@@ -11,6 +11,7 @@
 #include "util.h" //biton32
 
 static bool is_commit_mode(void);
+static void set_im_state(uint8_t state);
 static void handle_cursor(uint16_t keycode);
 static void reset_cursor(void);
 static void numlock_on(void);
@@ -19,7 +20,19 @@ static void convert_sequence(void);
 static void predict_sequence(void);
 
 static uint8_t im_state = IM_STATE_PRECOMPOSITION;
+static void set_im_state(uint8_t state) {
+	im_state = state;
+	if(state == IM_STATE_PRECOMPOSITION) {
+		reset_cursor();
+	}
+	im_state_set_user(state);
+}
 uint8_t get_im_state() { return im_state; }
+
+__attribute__((weak))
+void im_state_set_user(uint8_t state) {
+	return;
+}
 
 static bool _is_practice_mode = false;
 bool is_practice_mode() { return _is_practice_mode; }
@@ -29,6 +42,7 @@ void reset_ime() {
 	_is_practice_mode = false;
 	reset_cursor();
 	numlock_off();
+	im_state_set_user(im_state);
 }
 
 static bool is_commit_mode() {
@@ -100,18 +114,20 @@ void detect_ime_change(uint8_t usb_led) {
 	}
 	else {
 		default_layer_set(1UL << L_BASE);
-		if(_is_practice_mode) return;
-		switch(im_state) {
-		case IM_STATE_CONVERT:
-		case IM_STATE_COMPOSITION:
-		case IM_STATE_PREDICT:
-			im_state = IM_STATE_PRECOMPOSITION;
-			break;
-		default:
-			break;
+		if(!_is_practice_mode) {
+			switch(im_state) {
+			case IM_STATE_CONVERT:
+			case IM_STATE_COMPOSITION:
+			case IM_STATE_PREDICT:
+				im_state = IM_STATE_PRECOMPOSITION;
+				break;
+			default:
+				break;
+			}
+			reset_cursor();
 		}
-		reset_cursor();
 	}
+	im_state_set_user(im_state);
 }
 
 __attribute__((weak))
@@ -181,8 +197,7 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 		}
 		register_kana(keycode);
 		tap_code(KC_ENT);
-		im_state = IM_STATE_PRECOMPOSITION;
-		reset_cursor();
+		set_im_state(IM_STATE_PRECOMPOSITION);
 	}
 	else {
 	// for normal character
@@ -197,7 +212,7 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 		}
 		register_kana(keycode);
 		convert_sequence();
-		im_state = IM_STATE_CONVERT;
+		set_im_state(IM_STATE_CONVERT);
 		handle_cursor(keycode);
 	}
 	return false;
@@ -215,7 +230,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			if(_is_practice_mode) {
 				_is_practice_mode = false;
 				// to update led indicator
-				default_layer_state_set_user(default_layer_state);
+				im_state_set_user(im_state);
 			}
 			// IME: on to off, practice: off
 			else {
@@ -247,7 +262,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				tap_code(JP_ZHTG);
 				_is_practice_mode = true;
 				// to update led indicator
-				default_layer_state_set_user(default_layer_state);
+				im_state_set_user(im_state);
 				reset_cursor();
 			}
 		}
@@ -258,7 +273,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		}
 		return false;
 	}
-	if(biton32(default_layer_state) != LAYER_KANA) return true;
+	if(!is_default_layer_kana()) return true;
 	if(is_kana_chord(keycode)) {
 		process_kana_chord(keycode, record);
 		return false;
@@ -280,9 +295,10 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		switch(im_state) {
 		case IM_STATE_PREDICT:
 		case IM_STATE_CONVERT:
+		case IM_STATE_COMPOSITION:
 			tap_code(keycode);
 			tap_code(KC_ENT);
-			im_state = IM_STATE_PRECOMPOSITION;
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			reset_cursor();
 			break;
 		default:
@@ -297,16 +313,16 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 	case KC_MINS:
 	// PreComposition: char
 	// Convert: cansel, char, convert
-	// Predict: commit(by ime), char
+	// Predict: cansel, char, predict
 		if(!event.pressed) return false;
 		if(is_commit_mode()) {
 			tap_code(keycode);
 			tap_code(KC_ENT);
 		}
 		else if(im_state == IM_STATE_PREDICT) {
-			reset_cursor();
+			tap_code(KC_ESC);
 			tap_code(keycode);
-			convert_sequence();
+			predict_sequence();
 			handle_cursor(keycode);
 		}
 		else if(im_state == IM_STATE_CONVERT) {
@@ -317,7 +333,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		}
 		else {
 			tap_code(keycode);
-			im_state = IM_STATE_COMPOSITION;
+			set_im_state(IM_STATE_COMPOSITION);
 			handle_cursor(keycode);
 		}
 		return false;
@@ -332,16 +348,16 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		case IM_STATE_PRECOMPOSITION:
 		case IM_STATE_KATAKANA_DIRECT:
 			tap_code(KC_KANA);
-			im_state = IM_STATE_HIRAGANA_DIRECT;
+			set_im_state(IM_STATE_HIRAGANA_DIRECT);
 			break;
 		case IM_STATE_HIRAGANA_DIRECT:
-			im_state = IM_STATE_PRECOMPOSITION;
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		case IM_STATE_COMPOSITION:
 		case IM_STATE_CONVERT:
 			tap_code(KC_F6);
 			tap_code(KC_ENT);
-			im_state = IM_STATE_PRECOMPOSITION;
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			reset_cursor();
 			break;
 		default:
@@ -363,17 +379,17 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			tap_code(KC_KANA);
 			del_weak_mods(MOD_LSFT);
 			send_keyboard_report();
-			im_state = IM_STATE_KATAKANA_DIRECT;
+			set_im_state(IM_STATE_KATAKANA_DIRECT);
 			break;
 		case IM_STATE_KATAKANA_DIRECT:
 			tap_code(KC_KANA);
-			im_state = IM_STATE_PRECOMPOSITION;
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		case IM_STATE_COMPOSITION:
 		case IM_STATE_CONVERT:
 			tap_code(KC_F7);
 			tap_code(KC_ENT);
-			im_state = IM_STATE_PRECOMPOSITION;
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			reset_cursor();
 			break;
 		default:
@@ -388,15 +404,13 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		switch(im_state) {
 		case IM_STATE_COMPOSITION:
 			tap_code(KC_ENT);
-			im_state = IM_STATE_PRECOMPOSITION;
-			reset_cursor();
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		case IM_STATE_CONVERT:
 		case IM_STATE_PREDICT:
 			tap_code(KC_ESC);
 			tap_code(KC_ENT);
-			im_state = IM_STATE_PRECOMPOSITION;
-			reset_cursor();
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		default:
 			tap_code(KC_SPC);
@@ -411,12 +425,11 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		switch(im_state) {
 		case IM_STATE_COMPOSITION:
 			convert_sequence();
-			im_state = IM_STATE_CONVERT;
+			set_im_state(IM_STATE_CONVERT);
 		case IM_STATE_CONVERT:
 		case IM_STATE_PREDICT:
 			tap_code(KC_ENT);
-			im_state = IM_STATE_PRECOMPOSITION;
-			reset_cursor();
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		default:
 			tap_code(KC_SPC);
@@ -432,16 +445,14 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		case IM_STATE_COMPOSITION:
 			tap_code(KC_ENT);
 			tap_code(KC_ENT);
-			im_state = IM_STATE_PRECOMPOSITION;
-			reset_cursor();
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		case IM_STATE_CONVERT:
 		case IM_STATE_PREDICT:
 			tap_code(KC_ESC);
 			tap_code(KC_ENT);
 			tap_code(KC_ENT);
-			im_state = IM_STATE_PRECOMPOSITION;
-			reset_cursor();
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		default:
 			tap_code(KC_ENT);
@@ -458,8 +469,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		case IM_STATE_PREDICT:
 			tap_code(KC_ENT);
 			tap_code(KC_ENT);
-			im_state = IM_STATE_PRECOMPOSITION;
-			reset_cursor();
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		default:
 			tap_code(KC_ENT);
@@ -473,12 +483,12 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		switch(im_state) {
 		case IM_STATE_COMPOSITION:
 			predict_sequence();
-			im_state = IM_STATE_PREDICT;
+			set_im_state(IM_STATE_PREDICT);
 			break;
 		case IM_STATE_CONVERT:
 			tap_code(KC_ESC);
 			predict_sequence();
-			im_state = IM_STATE_PREDICT;
+			set_im_state(IM_STATE_PREDICT);
 			break;
 		default:
 			tap_code(KC_TAB);
@@ -492,18 +502,16 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		switch(im_state) {
 		case IM_STATE_COMPOSITION:
 			tap_code(KC_ESC);
-			im_state = IM_STATE_PRECOMPOSITION;
-			reset_cursor();
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		case IM_STATE_CONVERT:
 			tap_code(KC_ESC);
 			tap_code(KC_ESC);
-			im_state = IM_STATE_PRECOMPOSITION;
-			reset_cursor();
+			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		case IM_STATE_PREDICT:
 			tap_code(KC_ESC);
-			im_state = IM_STATE_COMPOSITION;
+			set_im_state(IM_STATE_COMPOSITION);
 			break;
 		default:
 			tap_code(KC_ESC);
@@ -524,7 +532,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				if(char_count != 0) {
 					convert_sequence();
 				}
-				else im_state = IM_STATE_PRECOMPOSITION;
+				else set_im_state(IM_STATE_PRECOMPOSITION);
 				break;
 			case IM_STATE_PREDICT:
 				tap_code(KC_ESC);
@@ -534,7 +542,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				if(char_count != 0) {
 					predict_sequence();
 				}
-				else im_state = IM_STATE_PRECOMPOSITION;
+				else set_im_state(IM_STATE_PRECOMPOSITION);
 				break;
 			case IM_STATE_COMPOSITION:
 				tap_code(keycode);
@@ -591,7 +599,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			switch(im_state) {
 			case IM_STATE_COMPOSITION:
 				tap_code(KC_UP);
-				im_state = IM_STATE_CONVERT;
+				set_im_state(IM_STATE_CONVERT);
 				break;
 			case IM_STATE_CONVERT:
 				tap_code(KC_RGHT);
@@ -611,7 +619,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			switch(im_state) {
 			case IM_STATE_COMPOSITION:
 				tap_code(KC_DOWN);
-				im_state = IM_STATE_CONVERT;
+				set_im_state(IM_STATE_CONVERT);
 				break;
 			case IM_STATE_CONVERT:
 				tap_code(KC_LEFT);
@@ -633,16 +641,16 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		switch(im_state) {
 		case IM_STATE_COMPOSITION:
 			convert_sequence();
-			im_state = IM_STATE_CONVERT;
+			set_im_state(IM_STATE_CONVERT);
 			break;
 		case IM_STATE_PREDICT:
 			tap_code(KC_ESC);
 			convert_sequence();
-			im_state = IM_STATE_CONVERT;
+			set_im_state(IM_STATE_CONVERT);
 			break;
 		case IM_STATE_CONVERT:
 			tap_code(KC_ESC);
-			im_state = IM_STATE_COMPOSITION;
+			set_im_state(IM_STATE_COMPOSITION);
 			break;
 		default:
 			tap_code(keycode);

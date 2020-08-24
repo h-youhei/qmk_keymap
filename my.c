@@ -149,38 +149,48 @@ void led_set_user(uint8_t usb_led) {
 	detect_ime_change(usb_led);
 #endif
 
-	if(IS_LED_ON(usb_led, USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
-	else ergodox_right_led_2_off();
+	if(biton32(default_layer_state) != L_KANA) {
+		if(IS_LED_ON(usb_led, USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
+		else ergodox_right_led_2_off();
+	}
 
 	// if(IS_LED_ON(usb_led, USB_LED_SCROLL_LOCK)) ergodox_right_led_3_on();
 	// else ergodox_right_led_3_off();
 }
 
-#ifndef NO_JAPANESE
+#ifdef ENABLE_STABLE_LAYER
 layer_state_t default_layer_state_set_user(layer_state_t state) {
 	ergodox_led_all_set(LED_BRIGHTNESS_LO);
 	uint8_t layer = biton32(state);
-#ifdef ENABLE_STABLE_LAYER
 // 	if(layer == L_STABLE) ergodox_right_led_1_on();
+	return state;
+}
 #endif
+
+#ifndef NO_JAPANESE
+void im_state_set_user(uint8_t state) {
+	ergodox_led_all_set(LED_BRIGHTNESS_LO);
+	uint8_t layer = biton32(default_layer_state);
 	if(layer == L_KANA) {
 		if(is_practice_mode()) {
 			ergodox_right_led_1_off();
 			ergodox_right_led_3_on();
 		}
 		else {
-			uint8_t im_state = get_im_state();
-			if(im_state == IM_STATE_HIRAGANA_DIRECT) {
+			switch(state) {
+			case IM_STATE_HIRAGANA_DIRECT:
 				ergodox_right_led_1_on();
 				ergodox_right_led_3_on();
-			}
-			else if(im_state == IM_STATE_KATAKANA_DIRECT) {
+				break;
+			case IM_STATE_KATAKANA_DIRECT:
 				ergodox_right_led_1_on();
 				ergodox_right_led_2_on();
-			}
-			else {
+				break;
+			default:
 				ergodox_right_led_1_on();
+				ergodox_right_led_2_off();
 				ergodox_right_led_3_off();
+				break;
 			}
 		}
 	}
@@ -188,7 +198,6 @@ layer_state_t default_layer_state_set_user(layer_state_t state) {
 		ergodox_right_led_1_off();
 		ergodox_right_led_3_off();
 	}
-	return state;
 }
 #endif
 
