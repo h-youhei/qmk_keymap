@@ -19,6 +19,13 @@ static void numlock_off(void);
 static void convert_sequence(void);
 static void predict_sequence(void);
 
+static bool is_ascii_symbol(uint16_t keycode);
+static bool is_shifted_symbol_jp(uint16_t keycode);
+static void tap_code_handle_shifted_jp(uint16_t keycode);
+static void commit_ascii(uint16_t keycode);
+static void commit_before_ascii(uint16_t keycode);
+static bool process_ascii(uint16_t keycode, keyrecord_t *record);
+
 static uint8_t im_state = IM_STATE_PRECOMPOSITION;
 static void set_im_state(uint8_t state) {
 	im_state = state;
@@ -57,7 +64,9 @@ static void reset_cursor() {
 	cursor_position = 0;
 }
 static void handle_cursor(uint16_t keycode) {
-	if(is_kana(keycode) || keycode == KC_MINS) {
+	if(is_kana(keycode) || is_ascii_symbol(keycode)
+	   || in_range(keycode, KC_A, KC_Z)
+	   || in_range(keycode, KC_1, KC_0)) {
 		char_count++;
 		cursor_position++;
 		return;
@@ -131,18 +140,114 @@ void detect_ime_change(uint8_t usb_led) {
 }
 
 __attribute__((weak))
-bool need_commit(uint16_t keycode) {
+uint8_t get_behavior(uint16_t keycode) {
+	if(in_range(keycode, KC_A, KC_Z)
+	   || in_range(keycode, KC_1, KC_0)) {
+		return BEHAVE_HALFWIDTH;
+	}
 	switch(keycode) {
-		case KANA_COMM:
-		case KANA_DOT:
-		case KANA_ZSLSH:
 		case KANA_ZDOT:
 		case KANA_ZCOMM:
+		case JP_TILD:
+		case JP_EXLM:
+		case JP_LPRN:
+		case JP_RPRN:
+		case JP_PLUS:
+		case JP_LBRC:
+		case JP_RBRC:
+		// Yen
+		case JP_BSLS:
+		case JP_COLN:
+		case KC_COMM:
+		case KC_DOT:
+		case JP_QUES:
+			return BEHAVE_COMMIT;
+		case JP_GRV:
+		case JP_AT:
+		case JP_HASH:
+		case JP_DLR:
+		case JP_PERC:
+		case JP_CIRC:
+		case JP_ASTR:
+		case JP_UNDS:
+		case JP_PIPE:
+		case KC_SCLN:
+		case JP_QUOT:
+		case JP_DQT:
+		case JP_LT:
+		case JP_GT:
+		case KC_SLSH:
+			return BEHAVE_HALFWIDTH;
+		// These often appear in the middle of katakana
+		case KC_MINS:
+		case KANA_ZSLSH:
+		case JP_EQL:
+		case JP_AMPR:
+			return BEHAVE_COMMIT_ONLY_PRECOMPOSITION;
+		case JP_LCBR:
+		case JP_RCBR:
+			return BEHAVE_COMMIT_BEFORE;
+		default:
+			return BEHAVE_NORMAL;
+	}
+}
+
+static bool is_ascii_symbol(uint16_t keycode) {
+	if(in_range(keycode, KC_MINS, KC_SLSH)) return true;
+	if(in_range(keycode, KC_UNDS, KC_QUES)) return true;
+	if(in_range(keycode, KC_EXLM, KC_RPRN)) return true;
+	switch(keycode) {
+		case JP_RBRC:
+		case JP_RCBR:
+		case JP_YEN:
+		case JP_PIPE:
+		case JP_BSLS:
+		case JP_UNDS:
 			return true;
 		default:
 			return false;
 	}
 }
+static bool is_shifted_symbol_jp(uint16_t keycode) {
+	switch(keycode) {
+		case JP_EXLM:
+		case JP_DQUO:
+		case JP_HASH:
+		case JP_DLR:
+		case JP_PERC:
+		case JP_AMPR:
+		case JP_QUOT:
+		case JP_LPRN:
+		case JP_RPRN:
+		case JP_EQL:
+		case JP_TILD:
+		case JP_PIPE:
+		case JP_GRV:
+		case JP_LCBR:
+		case JP_RCBR:
+		case JP_PLUS:
+		case JP_ASTR:
+		case JP_LABK:
+		case JP_RABK:
+		case JP_QUES:
+		case JP_UNDS:
+			return true;
+		default:
+			return false;
+	}
+}
+static void tap_shifted_code(uint16_t keycode) {
+	add_weak_mods(MOD_LSFT);
+	send_keyboard_report();
+	tap_code(keycode);
+	del_weak_mods(MOD_LSFT);
+	send_keyboard_report();
+}
+static void tap_code_handle_shifted_jp(uint16_t keycode) {
+	if(is_shifted_symbol_jp(keycode)) tap_shifted_code(keycode);
+	else tap_code(keycode);
+}
+
 
 void tap_kana(uint16_t kana, keyevent_t event) {
 	process_kana(kana, &(keyrecord_t){
@@ -169,6 +274,127 @@ static void predict_sequence(void) {
 	tap_code(KC_UP);
 }
 
+// PreComposition: char, commit
+// Convert: cansel, char, commit
+// Predict: (commit by ime), char, commit
+static void commit_ascii(uint16_t keycode) {
+	if(im_state == IM_STATE_CONVERT) {
+		tap_code(KC_ESC);
+	}
+	tap_code_handle_shifted_jp(keycode);
+	uint8_t mods = keyboard_report->mods;
+	if(mods & MOD_MASK_SHIFT) {
+		del_mods(mods);
+		tap_code(KC_ENT);
+		add_mods(mods);
+	}
+	else tap_code(KC_ENT);
+	set_im_state(IM_STATE_PRECOMPOSITION);
+}
+// to handle 『』 with the same process
+// PreComposition: char, convert
+// Convert: cansel, commit, char, convert
+// Predict: (commit by ime), char, convert
+static void commit_before_ascii(uint16_t keycode) {
+	if(im_state == IM_STATE_CONVERT) {
+		tap_code(KC_ESC);
+		tap_code(KC_ENT);
+	}
+	else if(im_state == IM_STATE_COMPOSITION) {
+		tap_code(KC_ENT);
+	}
+	reset_cursor();
+	tap_code_handle_shifted_jp(keycode);
+	convert_sequence();
+	set_im_state(IM_STATE_CONVERT);
+	handle_cursor(keycode);
+}
+// return value
+// true: continue processing
+// false: The process is completed by this function
+static bool process_ascii(uint16_t keycode, keyrecord_t *record) {
+	keyevent_t event = record->event;
+	if(!event.pressed) return false;
+	if(is_commit_mode()) {
+		tap_code_handle_shifted_jp(keycode);
+		tap_code(KC_ENT);
+		return false;
+	}
+	switch(get_behavior(keycode)) {
+	case BEHAVE_COMMIT:
+	// PreComposition: char, commit
+	// Convert: cansel, char, commit
+	// Predict: (commit by ime), char, commit
+		commit_ascii(keycode);
+		return false;
+	case BEHAVE_HALFWIDTH:
+	// PreComposition: char, halfwidth, commit
+	// Convert: cansel, char, halfwidth, commit
+	// Predict: (commit by ime), char, halfwidth, commit
+		if(im_state == IM_STATE_CONVERT) {
+			tap_code(KC_ESC);
+			tap_code(KC_ENT);
+		}
+		else if(im_state == IM_STATE_COMPOSITION) {
+			tap_code(KC_ENT);
+		}
+		tap_code_handle_shifted_jp(keycode);
+		tap_code(KC_F10);
+		tap_code(KC_ENT);
+		set_im_state(IM_STATE_PRECOMPOSITION);
+		return false;
+	case BEHAVE_COMMIT_ONLY_PRECOMPOSITION:
+	// PreComposition: char, commit
+	// Convert: cansel, char, convert
+	// Predict: (commit by ime), char, convert
+		if(im_state == IM_STATE_PRECOMPOSITION) {
+			tap_code_handle_shifted_jp(keycode);
+			tap_code(KC_ENT);
+			reset_cursor();
+			return false;
+		}
+		break;
+	case BEHAVE_COMMIT_BEFORE:
+	// PreComposition: char, convert
+	// Convert: cansel, commit, char, convert
+	// Predict: (commit by ime), char, convert
+		commit_before_ascii(keycode);
+		return false;
+	default:
+		break;
+	}
+	// PreComposition: char, convert
+	// Convert: cansel, char, convert
+	// Predict: commit(by ime), char, convert
+	if(im_state == IM_STATE_CONVERT) {
+		tap_code(KC_ESC);
+	}
+	else if(im_state == IM_STATE_PREDICT) {
+		reset_cursor();
+	}
+	tap_code_handle_shifted_jp(keycode);
+	convert_sequence();
+	set_im_state(IM_STATE_CONVERT);
+	handle_cursor(keycode);
+	return false;
+}
+
+bool process_capital_letter(uint16_t keycode, keyrecord_t *record) {
+	// continue other than shift
+	if(keyboard_report->mods & MOD_MASK_CAG &&
+	   keyboard_report->mods != MOD_RSFT) {
+		return true;
+	}
+	uint16_t keycode_base = keymap_key_to_keycode(0, record->event.key);
+	// uppercase character
+	if(in_range(keycode_base, KC_A, KC_Z)) {
+		if(!record->event.pressed) return false;
+		commit_ascii(keycode_base);
+		return false;
+	}
+	return true;
+}
+
 // return value
 // true: continue processing
 // false: The process is completed by this function
@@ -177,17 +403,19 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 	keyevent_t event = record->event;
 	if(!event.pressed) return false;
 	if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
-		tap_code(keymap_key_to_keycode(0, event.key));
-		return false;
+		return process_capital_letter(keycode, record);
 	}
 	if(_is_practice_mode) {
 		register_kana(keycode);
+		return false;
 	}
-	else if(is_commit_mode()) {
+	if(is_commit_mode()) {
 		register_kana(keycode);
 		tap_code(KC_ENT);
+		return false;
 	}
-	else if(need_commit(keycode)) {
+	switch(get_behavior(keycode)) {
+	case BEHAVE_COMMIT:
 	// for punctuation character
 	// PreComposition: char, commit
 	// Convert: cansel, char, commit
@@ -198,8 +426,8 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 		register_kana(keycode);
 		tap_code(KC_ENT);
 		set_im_state(IM_STATE_PRECOMPOSITION);
-	}
-	else {
+		return false;
+	default:
 	// for normal character
 	// PreComposition: char, convert
 	// Convert: cansel, char, convert
@@ -214,8 +442,8 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 		convert_sequence();
 		set_im_state(IM_STATE_CONVERT);
 		handle_cursor(keycode);
+		return false;
 	}
-	return false;
 }
 
 // return value
@@ -283,7 +511,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		return false;
 	}
 	if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
-		return true;
+		return process_capital_letter(keycode, record);
 	}
 	// nothing to do in practice mode after this line
 	if(_is_practice_mode) return true;
@@ -299,7 +527,6 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			tap_code(keycode);
 			tap_code(KC_ENT);
 			set_im_state(IM_STATE_PRECOMPOSITION);
-			reset_cursor();
 			break;
 		default:
 			tap_code(keycode);
@@ -309,34 +536,33 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		}
 		return false;
 	}
-	switch(keycode) {
-	case KC_MINS:
-	// PreComposition: char
-	// Convert: cansel, char, convert
-	// Predict: cansel, char, predict
+	// I want often used parentheses like （）, 「」to be committed after input.
+	// I also want to keep a pair of parentheses for conversion.
+	// But 『』 don't have enough conversion candidates.
+	if(keycode == JP_LCBR || keycode == JP_RCBR) {
+	// PreComposition: char, convert
+	// Convert: cansel, commit, char, convert
+	// Predict: (commit by ime), char, convert
+		keycode = (keycode == JP_LCBR) ? JP_LBRC : JP_RBRC;
 		if(!event.pressed) return false;
 		if(is_commit_mode()) {
 			tap_code(keycode);
 			tap_code(KC_ENT);
+			return false;
 		}
-		else if(im_state == IM_STATE_PREDICT) {
-			tap_code(KC_ESC);
-			tap_code(keycode);
-			predict_sequence();
-			handle_cursor(keycode);
-		}
-		else if(im_state == IM_STATE_CONVERT) {
-			tap_code(KC_ESC);
-			tap_code(keycode);
-			convert_sequence();
-			handle_cursor(keycode);
-		}
-		else {
-			tap_code(keycode);
-			set_im_state(IM_STATE_COMPOSITION);
-			handle_cursor(keycode);
-		}
+		commit_before_ascii(keycode);
 		return false;
+	}
+	if(is_ascii_symbol(keycode)) {
+		if(is_commit_mode()) {
+			tap_code(keycode);
+			tap_code(KC_ENT);
+			return false;
+		}
+		process_ascii(keycode, record);
+		return false;
+	}
+	switch(keycode) {
 	case IM_HIRAGANA:
 	// PreComposition: turn on hiragana mode
 	// HiraganaDirect: turn off hiragana mode
@@ -374,11 +600,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		switch(im_state) {
 		case IM_STATE_PRECOMPOSITION:
 		case IM_STATE_HIRAGANA_DIRECT:
-			add_weak_mods(MOD_LSFT);
-			send_keyboard_report();
-			tap_code(KC_KANA);
-			del_weak_mods(MOD_LSFT);
-			send_keyboard_report();
+			tap_shifted_code(KC_KANA);
 			set_im_state(IM_STATE_KATAKANA_DIRECT);
 			break;
 		case IM_STATE_KATAKANA_DIRECT:
@@ -576,11 +798,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				handle_cursor(keycode);
 				break;
 			case IM_STATE_CONVERT:
-				add_weak_mods(MOD_LSFT);
-				send_keyboard_report();
-				tap_code(keycode);
-				del_weak_mods(MOD_LSFT);
-				send_keyboard_report();
+				tap_shifted_code(keycode);
 				convert_sequence();
 				break;
 			case IM_STATE_PREDICT:

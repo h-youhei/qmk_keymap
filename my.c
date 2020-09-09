@@ -48,27 +48,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		return false;
 #ifndef NO_JAPANESE
 	case LALT_T(KC_COMM):
-		// use default process other than KANA layer
-		if(!is_default_layer_kana()) return true;
-		// use default process for mod
-		if(record->tap.count > 0) {
-			return process_ime(KANA_COMM ,record);
-		}
-		return true;
 	case RALT_T(KC_DOT):
+	case RCTL_T(KC_TAB):
+	case LCTL_T(KC_ESC):
+	case LGUI_T(KC_SCLN):
+	{
+		uint16_t keycode_8 = keycode & 0xFF;
 		// use default process other than KANA layer
 		if(!is_default_layer_kana()) return true;
 		// use default process for mod
 		if(record->tap.count > 0) {
-			return process_ime(KANA_DOT ,record);
+			return process_ime(keycode_8, record);
 		}
 		return true;
+	}
 	case LSFT_T(KC_SPC):
 		// use default process other than KANA layer
 		if(!is_default_layer_kana()) return true;
 		// use default process for mod
 		if(record->tap.count > 0) {
-			return process_ime(IM_LSPC ,record);
+			return process_ime(IM_LSPC, record);
 		}
 		return true;
 	case RSFT_T(KC_SPC):
@@ -76,7 +75,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		if(!is_default_layer_kana()) return true;
 		// use default process for mod
 		if(record->tap.count > 0) {
-			return process_ime(IM_RSPC ,record);
+			return process_ime(IM_RSPC, record);
 		}
 		return true;
 	case FN_T(KC_ENT):
@@ -84,7 +83,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		if(!is_default_layer_kana()) return true;
 		// use default process for mod
 		if(record->tap.count > 0) {
-			return process_ime(IM_LENT ,record);
+			return process_ime(IM_LENT, record);
 		}
 		return true;
 	// use KC_PENT to distinguish between left and right
@@ -98,23 +97,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 				else { unregister_code(KC_ENT); }
 				return false;
 			}
-			else { return process_ime(IM_RENT ,record); }
-		}
-		return true;
-	case RCTL_T(KC_TAB):
-		// use default process other than KANA layer
-		if(!is_default_layer_kana()) return true;
-		// use default process for mod
-		if(record->tap.count > 0) {
-			return process_ime(KC_TAB ,record);
-		}
-		return true;
-	case LCTL_T(KC_ESC):
-		// use default process other than KANA layer
-		if(!is_default_layer_kana()) return true;
-		// use default process for mod
-		if(record->tap.count > 0) {
-			return process_ime(KC_ESC ,record);
+			else { return process_ime(IM_RENT, record); }
 		}
 		return true;
 #endif
@@ -126,12 +109,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		// use default process for mod
 		if(record->tap.count > 0) {
 			if(event.pressed) {
-				add_mods(MOD_LSFT);
-				register_code(KC_7);
+				if(!is_default_layer_kana()) {
+					add_mods(MOD_LSFT);
+					register_code(KC_7);
+				}
+				else {
+					return process_ime(JP_QUOT, record);
+				}
 			}
 			else {
-				unregister_code(KC_7);
-				del_mods(MOD_LSFT);
+				if(!is_default_layer_kana()) {
+					unregister_code(KC_7);
+					del_mods(MOD_LSFT);
+				}
+				else {
+					return process_ime(JP_QUOT, record);
+				}
 			}
 			return false;
 		}

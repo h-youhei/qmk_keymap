@@ -29,7 +29,7 @@ void process_kana_chord(uint16_t keycode, keyrecord_t *record) {
 	uint32_t note_bit = kana_note_to_bit(get_kana_note_from_keycode(keycode));
 	if(event.pressed) {
 		if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
-			tap_code(keymap_key_to_keycode(0, event.key));
+			process_capital_letter(keycode, record);
 		}
 		else {
 			is_recently_pressed = true;
