@@ -640,28 +640,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			break;
 		}
 		return false;
-	case IM_LSPC:
-	// PreComposition etc: space
-	// Composition: commit
-	// Predict, Convert: hiragana, commit
-		if(!event.pressed) return false;
-		switch(im_state) {
-		case IM_STATE_COMPOSITION:
-			tap_code(KC_ENT);
-			set_im_state(IM_STATE_PRECOMPOSITION);
-			break;
-		case IM_STATE_CONVERT:
-		case IM_STATE_PREDICT:
-			tap_code(KC_ESC);
-			tap_code(KC_ENT);
-			set_im_state(IM_STATE_PRECOMPOSITION);
-			break;
-		default:
-			tap_code(KC_SPC);
-			break;
-		}
-		return false;
-	case IM_RSPC:
+	case KC_SPC:
 	// PreComposition etc: space
 	// Composition: convert
 	// Predict, Convert: commit
@@ -680,38 +659,19 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			break;
 		}
 		return false;
-	case IM_LENT:
+	case KC_ENT:
 	// PreComposition etc: return
-	// Composition: commit, return
-	// Convert, Predict: hiragana, commit, return
+	// Composition: commit
+	// Predict, Convert: hiragana, commit
 		if(!event.pressed) return false;
 		switch(im_state) {
 		case IM_STATE_COMPOSITION:
-			tap_code(KC_ENT);
 			tap_code(KC_ENT);
 			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;
 		case IM_STATE_CONVERT:
 		case IM_STATE_PREDICT:
 			tap_code(KC_ESC);
-			tap_code(KC_ENT);
-			tap_code(KC_ENT);
-			set_im_state(IM_STATE_PRECOMPOSITION);
-			break;
-		default:
-			tap_code(KC_ENT);
-			break;
-		}
-		return false;
-	case IM_RENT:
-	// PreComposition etc: return
-	// Composition, Convert, Predict: commit, return
-		if(!event.pressed) return false;
-		switch(im_state) {
-		case IM_STATE_COMPOSITION:
-		case IM_STATE_CONVERT:
-		case IM_STATE_PREDICT:
-			tap_code(KC_ENT);
 			tap_code(KC_ENT);
 			set_im_state(IM_STATE_PRECOMPOSITION);
 			break;

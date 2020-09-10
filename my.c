@@ -52,6 +52,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	case RCTL_T(KC_TAB):
 	case LCTL_T(KC_ESC):
 	case LGUI_T(KC_SCLN):
+	case LSFT_T(KC_SPC):
+	case RSFT_T(KC_SPC):
+	case FN_T(KC_ENT):
 	{
 		uint16_t keycode_8 = keycode & 0xFF;
 		// use default process other than KANA layer
@@ -62,44 +65,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		}
 		return true;
 	}
-	case LSFT_T(KC_SPC):
-		// use default process other than KANA layer
-		if(!is_default_layer_kana()) return true;
-		// use default process for mod
-		if(record->tap.count > 0) {
-			return process_ime(IM_LSPC, record);
-		}
-		return true;
-	case RSFT_T(KC_SPC):
-		// use default process other than KANA layer
-		if(!is_default_layer_kana()) return true;
-		// use default process for mod
-		if(record->tap.count > 0) {
-			return process_ime(IM_RSPC, record);
-		}
-		return true;
-	case FN_T(KC_ENT):
-		// use default process other than KANA layer
-		if(!is_default_layer_kana()) return true;
-		// use default process for mod
-		if(record->tap.count > 0) {
-			return process_ime(IM_LENT, record);
-		}
-		return true;
-	// use KC_PENT to distinguish between left and right
-	case FN_T(KC_PENT):
-		// use default process for mod
-		if(record->tap.count > 0) {
-			if(!is_default_layer_kana()) {
-				if(event.pressed) {
-					register_code(KC_ENT);
-				}
-				else { unregister_code(KC_ENT); }
-				return false;
-			}
-			else { return process_ime(IM_RENT, record); }
-		}
-		return true;
 #endif
 // To use japanese input specific keys on Windows,
 // OS's layout should be jis layout.
@@ -245,7 +210,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		// thumb
 		KC_WBAK, KC_WFWD,
 		KC_WSCH,
-		IME, FN_T(KC_PENT), RSFT_T(KC_SPC)
+		IME, FN_T(KC_ENT), RSFT_T(KC_SPC)
 	),
 #ifdef ENABLE_STABLE_LAYER
 	[L_STABLE] = LAYOUT_ergodox(

@@ -46,10 +46,6 @@ enum im_code {
 	IM_HIRAGANA,
 	IM_KATAKANA,
 	IM_COMMIT,
-	IM_LSPC,
-	IM_RSPC,
-	IM_LENT,
-	IM_RENT,
 };
 
 // You can change behavior when character is typed
