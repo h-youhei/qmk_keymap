@@ -16,6 +16,7 @@ static void handle_cursor(uint16_t keycode);
 static void reset_cursor(void);
 static void numlock_on(void);
 static void numlock_off(void);
+static bool is_shifting_but_other_mod(void);
 static void convert_sequence(void);
 static void predict_sequence(void);
 
@@ -100,6 +101,13 @@ static void handle_cursor(uint16_t keycode) {
 
 bool is_default_layer_kana() {
 	return (biton32(default_layer_state) == LAYER_KANA);
+}
+
+static bool is_shifting_but_other_mod() {
+	if(keyboard_report->mods & MOD_MASK_SHIFT) {
+		return !(keyboard_report->mods & MOD_MASK_CAG);
+	}
+	return false;
 }
 
 // TODO: use raw_hid to detect ime state
@@ -248,7 +256,6 @@ static void tap_code_handle_shifted_jp(uint16_t keycode) {
 	else tap_code(keycode);
 }
 
-
 void tap_kana(uint16_t kana, keyevent_t event) {
 	process_kana(kana, &(keyrecord_t){
 		// .tap = (tap_t){},
@@ -381,10 +388,7 @@ static bool process_ascii(uint16_t keycode, keyrecord_t *record) {
 
 bool process_capital_letter(uint16_t keycode, keyrecord_t *record) {
 	// continue other than shift
-	if(keyboard_report->mods & MOD_MASK_CAG &&
-	   keyboard_report->mods != MOD_RSFT) {
-		return true;
-	}
+	if(!is_shifting_but_other_mod()) return true;
 	uint16_t keycode_base = keymap_key_to_keycode(0, record->event.key);
 	// uppercase character
 	if(in_range(keycode_base, KC_A, KC_Z)) {
@@ -510,9 +514,6 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		process_kana(keycode, record);
 		return false;
 	}
-	if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
-		return process_capital_letter(keycode, record);
-	}
 	// nothing to do in practice mode after this line
 	if(_is_practice_mode) return true;
 	if(in_range(keycode, KC_1, KC_0)) {
@@ -520,6 +521,24 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 	// Convert: select candidate, commit
 	// PreComposition etc: num char, commit
 		if(!event.pressed) return false;
+		// leave a way to select candidate segment by segment
+		if(is_shifting_but_other_mod()) {
+			switch(im_state) {
+			case IM_STATE_CONVERT:
+			{
+				uint8_t mods = keyboard_report->mods;
+				del_mods(mods);
+				tap_code(keycode);
+				add_mods(mods);
+				return false;
+			}
+			default:
+				break;
+			}
+		}
+		else if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
+			return true;
+		}
 		switch(im_state) {
 		case IM_STATE_PREDICT:
 		case IM_STATE_CONVERT:
@@ -535,6 +554,9 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			break;
 		}
 		return false;
+	}
+	if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
+		return process_capital_letter(keycode, record);
 	}
 	// I want often used parentheses like （）, 「」to be committed after input.
 	// I also want to keep a pair of parentheses for conversion.
