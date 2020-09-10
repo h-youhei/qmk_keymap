@@ -1,7 +1,7 @@
 #include "ime.h"
 #include "kana.h" //is_kana, need_commit, register_kana
 #include "kana_chord.h" //is_kana_chord, process_kana_chord
-#include "util_user.h" //in_range
+#include "util_user.h" //in_range, is_shifting_but_other_mod, tap_shifted_code, tap_code_unmods
 
 #include "action_layer.h" //default_layer_state
 #include "action_util.h" //keyboard_report, send_keyboard_report, add/del_weak_mods
@@ -16,7 +16,6 @@ static void handle_cursor(uint16_t keycode);
 static void reset_cursor(void);
 static void numlock_on(void);
 static void numlock_off(void);
-static bool is_shifting_but_other_mod(void);
 static void convert_sequence(void);
 static void predict_sequence(void);
 
@@ -101,13 +100,6 @@ static void handle_cursor(uint16_t keycode) {
 
 bool is_default_layer_kana() {
 	return (biton32(default_layer_state) == LAYER_KANA);
-}
-
-static bool is_shifting_but_other_mod() {
-	if(keyboard_report->mods & MOD_MASK_SHIFT) {
-		return !(keyboard_report->mods & MOD_MASK_CAG);
-	}
-	return false;
 }
 
 // TODO: use raw_hid to detect ime state
@@ -244,13 +236,6 @@ static bool is_shifted_symbol_jp(uint16_t keycode) {
 			return false;
 	}
 }
-static void tap_shifted_code(uint16_t keycode) {
-	add_weak_mods(MOD_LSFT);
-	send_keyboard_report();
-	tap_code(keycode);
-	del_weak_mods(MOD_LSFT);
-	send_keyboard_report();
-}
 static void tap_code_handle_shifted_jp(uint16_t keycode) {
 	if(is_shifted_symbol_jp(keycode)) tap_shifted_code(keycode);
 	else tap_code(keycode);
@@ -289,11 +274,8 @@ static void commit_ascii(uint16_t keycode) {
 		tap_code(KC_ESC);
 	}
 	tap_code_handle_shifted_jp(keycode);
-	uint8_t mods = keyboard_report->mods;
-	if(mods & MOD_MASK_SHIFT) {
-		del_mods(mods);
-		tap_code(KC_ENT);
-		add_mods(mods);
+	if(keyboard_report->mods & MOD_MASK_SHIFT) {
+		tap_code_unmods(KC_ENT);
 	}
 	else tap_code(KC_ENT);
 	set_im_state(IM_STATE_PRECOMPOSITION);
@@ -525,13 +507,8 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		if(is_shifting_but_other_mod()) {
 			switch(im_state) {
 			case IM_STATE_CONVERT:
-			{
-				uint8_t mods = keyboard_report->mods;
-				del_mods(mods);
-				tap_code(keycode);
-				add_mods(mods);
+				tap_code_unmods(keycode);
 				return false;
-			}
 			default:
 				break;
 			}
