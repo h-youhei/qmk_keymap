@@ -537,6 +537,94 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		}
 		return false;
 	}
+	// put here if mods handling is needed for the keycode
+	switch(keycode) {
+	case IM_HIRAGANA:
+	// PreComposition: turn on hiragana mode
+	// HiraganaDirect: turn off hiragana mode
+	// KatakanaDirect: turn on hiragana mode
+	// Predict: hiragana, commit
+	// Convert: hiragana, commit
+		if(!event.pressed) return false;
+		// leave a way to select candidate segment by segment
+		if(is_shifting_but_other_mod()) {
+			switch(im_state) {
+			case IM_STATE_COMPOSITION:
+			case IM_STATE_CONVERT:
+				tap_code_unmods(KC_F6);
+				return false;
+			default:
+				return process_capital_letter(keycode, record);
+			}
+		}
+		else if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
+			return true;
+		}
+		switch(im_state) {
+		case IM_STATE_PRECOMPOSITION:
+		case IM_STATE_KATAKANA_DIRECT:
+			tap_code(KC_KANA);
+			set_im_state(IM_STATE_HIRAGANA_DIRECT);
+			break;
+		case IM_STATE_HIRAGANA_DIRECT:
+			set_im_state(IM_STATE_PRECOMPOSITION);
+			break;
+		case IM_STATE_COMPOSITION:
+		case IM_STATE_CONVERT:
+			tap_code(KC_F6);
+			tap_code(KC_ENT);
+			set_im_state(IM_STATE_PRECOMPOSITION);
+			reset_cursor();
+			break;
+		default:
+			break;
+		}
+		return false;
+	case IM_KATAKANA:
+	// PreComposition: turn on katakana mode
+	// HiraganaDirect: turn on katakana mode
+	// KatakanaDirect: turn off katakana mode
+	// Predict: katakana, commit
+	// Convert: katakana, commit
+		if(!event.pressed) return false;
+		// leave a way to select candidate segment by segment
+		if(is_shifting_but_other_mod()) {
+			switch(im_state) {
+			case IM_STATE_COMPOSITION:
+			case IM_STATE_CONVERT:
+				tap_code_unmods(KC_F7);
+				return false;
+			default:
+				return process_capital_letter(keycode, record);
+			}
+		}
+		else if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
+			return true;
+		}
+		switch(im_state) {
+		case IM_STATE_PRECOMPOSITION:
+		case IM_STATE_HIRAGANA_DIRECT:
+			tap_shifted_code(KC_KANA);
+			set_im_state(IM_STATE_KATAKANA_DIRECT);
+			break;
+		case IM_STATE_KATAKANA_DIRECT:
+			tap_code(KC_KANA);
+			set_im_state(IM_STATE_PRECOMPOSITION);
+			break;
+		case IM_STATE_COMPOSITION:
+		case IM_STATE_CONVERT:
+			tap_code(KC_F7);
+			tap_code(KC_ENT);
+			set_im_state(IM_STATE_PRECOMPOSITION);
+			reset_cursor();
+			break;
+		default:
+			break;
+		}
+		return false;
+	default:
+		break;
+	}
 	if(keyboard_report->mods || IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
 		return process_capital_letter(keycode, record);
 	}
@@ -567,61 +655,6 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		return false;
 	}
 	switch(keycode) {
-	case IM_HIRAGANA:
-	// PreComposition: turn on hiragana mode
-	// HiraganaDirect: turn off hiragana mode
-	// KatakanaDirect: turn on hiragana mode
-	// Predict: hiragana, commit
-	// Convert: hiragana, commit
-		if(!event.pressed) return false;
-		switch(im_state) {
-		case IM_STATE_PRECOMPOSITION:
-		case IM_STATE_KATAKANA_DIRECT:
-			tap_code(KC_KANA);
-			set_im_state(IM_STATE_HIRAGANA_DIRECT);
-			break;
-		case IM_STATE_HIRAGANA_DIRECT:
-			set_im_state(IM_STATE_PRECOMPOSITION);
-			break;
-		case IM_STATE_COMPOSITION:
-		case IM_STATE_CONVERT:
-			tap_code(KC_F6);
-			tap_code(KC_ENT);
-			set_im_state(IM_STATE_PRECOMPOSITION);
-			reset_cursor();
-			break;
-		default:
-			break;
-		}
-		return false;
-	case IM_KATAKANA:
-	// PreComposition: turn on katakana mode
-	// HiraganaDirect: turn on katakana mode
-	// KatakanaDirect: turn off katakana mode
-	// Predict: katakana, commit
-	// Convert: katakana, commit
-		if(!event.pressed) return false;
-		switch(im_state) {
-		case IM_STATE_PRECOMPOSITION:
-		case IM_STATE_HIRAGANA_DIRECT:
-			tap_shifted_code(KC_KANA);
-			set_im_state(IM_STATE_KATAKANA_DIRECT);
-			break;
-		case IM_STATE_KATAKANA_DIRECT:
-			tap_code(KC_KANA);
-			set_im_state(IM_STATE_PRECOMPOSITION);
-			break;
-		case IM_STATE_COMPOSITION:
-		case IM_STATE_CONVERT:
-			tap_code(KC_F7);
-			tap_code(KC_ENT);
-			set_im_state(IM_STATE_PRECOMPOSITION);
-			reset_cursor();
-			break;
-		default:
-			break;
-		}
-		return false;
 	case KC_SPC:
 	// PreComposition etc: space
 	// Composition: convert
