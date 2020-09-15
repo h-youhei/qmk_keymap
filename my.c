@@ -33,9 +33,6 @@ void matrix_scan_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	keyevent_t event = record->event;
-#ifndef NO_JAPANESE
-	if(!process_ime(keycode, record)) return false;
-#endif
 	switch(keycode) {
 	case CLEAR:
 		if(event.pressed) {
@@ -97,6 +94,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	default:
 		break;
 	}
+#ifndef NO_JAPANESE
+	if(!process_ime(keycode, record)) return false;
+#endif
 	return true;
 }
 
