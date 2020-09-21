@@ -453,6 +453,10 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			}
 			// IME: on to off, practice: off
 			else {
+				// cansel convert
+				if(im_state == IM_STATE_CONVERT) {
+					tap_code(KC_ESC);
+				}
 				// TODO: use raw_hid to detect ime state
 				numlock_off();
 				reset_cursor();
