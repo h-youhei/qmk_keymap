@@ -791,7 +791,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 	case KC_LEFT:
 	case KC_RGHT:
 	// Composition: move cursor
-	// Convert: expand/shrink segment
+	// Convert: select next/prev segment
 		if(event.pressed) {
 			switch(im_state) {
 			case IM_STATE_COMPOSITION:
@@ -799,7 +799,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				handle_cursor(keycode);
 				break;
 			case IM_STATE_CONVERT:
-				tap_shifted_code(keycode);
+				tap_code(keycode);
 				convert_sequence();
 				break;
 			case IM_STATE_PREDICT:
@@ -812,8 +812,8 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		else { unregister_code(keycode); }
 		return false;
 	case KC_UP:
+	// Convert: expand segment
 	// Composition: convert backward
-	// Convert: select next segment
 		if(event.pressed) {
 			switch(im_state) {
 			case IM_STATE_COMPOSITION:
@@ -821,7 +821,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				set_im_state(IM_STATE_CONVERT);
 				break;
 			case IM_STATE_CONVERT:
-				tap_code(KC_RGHT);
+				tap_shifted_code(KC_RGHT);
 				convert_sequence();
 				break;
 			default:
@@ -833,7 +833,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		return false;
 	case KC_DOWN:
 	// Composition: convert
-	// Convert: select prev segment
+	// Convert: shrink segment
 		if(event.pressed) {
 			switch(im_state) {
 			case IM_STATE_COMPOSITION:
@@ -841,7 +841,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				set_im_state(IM_STATE_CONVERT);
 				break;
 			case IM_STATE_CONVERT:
-				tap_code(KC_LEFT);
+				tap_shifted_code(KC_LEFT);
 				convert_sequence();
 				break;
 			default:
