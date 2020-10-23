@@ -16,6 +16,7 @@ static void handle_cursor(uint16_t keycode);
 static void reset_cursor(void);
 static void numlock_on(void);
 static void numlock_off(void);
+static void capslock_off(void);
 static void convert_sequence(void);
 static void predict_sequence(void);
 
@@ -111,6 +112,14 @@ static void numlock_on() {
 static void numlock_off() {
 	if(IS_HOST_LED_ON(USB_LED_NUM_LOCK)) {
 		tap_code(KC_NLCK);
+	}
+}
+
+static void capslock_off() {
+	if(IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
+		register_code(KC_LSFT);
+		tap_code(KC_CAPS);
+		unregister_code(KC_LSFT);
 	}
 }
 
@@ -466,6 +475,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		else {
 			// TODO: use raw_hid to detect ime state
 			numlock_on();
+			capslock_off();
 		}
 		tap_code(JP_ZHTG);
 		return false;
@@ -493,6 +503,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		else {
 			_is_practice_mode = true;
 			numlock_on();
+			capslock_off();
 		}
 		return false;
 	}
@@ -875,6 +886,19 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			tap_code(keycode);
 			break;
 		}
+		return false;
+	case KC_CAPS:
+		if(!event.pressed) return false;
+		// cansel convert
+		if(im_state == IM_STATE_CONVERT) {
+			tap_code(KC_ESC);
+		}
+		numlock_off();
+		reset_cursor();
+		tap_code(JP_ZHTG);
+		register_code(KC_LSFT);
+		tap_code(KC_CAPS);
+		unregister_code(KC_LSFT);
 		return false;
 	}
 	return true;
