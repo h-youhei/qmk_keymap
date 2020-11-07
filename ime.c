@@ -679,6 +679,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		case IM_STATE_COMPOSITION:
 			convert_sequence();
 			set_im_state(IM_STATE_CONVERT);
+			break;
 		case IM_STATE_CONVERT:
 		case IM_STATE_PREDICT:
 			tap_code(KC_ENT);

@@ -31,7 +31,6 @@ bool process_ime(uint16_t keycode, keyrecord_t *record);
 uint8_t get_im_state(void);
 void im_state_set_user(uint8_t im_state);
 enum im_state {
-	IM_STATE_DIRECT,
 	IM_STATE_HIRAGANA_DIRECT,
 	IM_STATE_KATAKANA_DIRECT,
 	IM_STATE_PRECOMPOSITION,
