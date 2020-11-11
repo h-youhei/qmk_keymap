@@ -762,8 +762,6 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				tap_code(KC_ESC);
 				tap_code(keycode);
 				handle_cursor(keycode);
-				// shrink and expand segment don't change cursor on Mozc
-				// handle_cursor(keycode);
 				if(char_count != 0) {
 					convert_sequence();
 				}
@@ -835,6 +833,8 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			case IM_STATE_CONVERT:
 				tap_shifted_code(KC_RGHT);
 				convert_sequence();
+				// shrink and expand segment don't change cursor on Mozc
+				// handle_cursor(keycode);
 				break;
 			default:
 				register_code(keycode);
@@ -855,6 +855,8 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			case IM_STATE_CONVERT:
 				tap_shifted_code(KC_LEFT);
 				convert_sequence();
+				// shrink and expand segment don't change cursor on Mozc
+				// handle_cursor(keycode);
 				break;
 			default:
 				register_code(keycode);
