@@ -164,8 +164,6 @@ uint8_t get_behavior(uint16_t keycode) {
 		case JP_PLUS:
 		case JP_LBRC:
 		case JP_RBRC:
-		// Yen
-		case JP_BSLS:
 		case JP_COLN:
 		case KC_COMM:
 		case KC_DOT:
@@ -186,6 +184,7 @@ uint8_t get_behavior(uint16_t keycode) {
 		case JP_LT:
 		case JP_GT:
 		case KC_SLSH:
+		case JP_BSLS:
 			return BEHAVE_HALFWIDTH;
 		// These often appear in the middle of katakana
 		case KC_MINS:
@@ -771,7 +770,6 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				tap_code(KC_ESC);
 				tap_code(keycode);
 				handle_cursor(keycode);
-				// handle_cursor(keycode);
 				if(char_count != 0) {
 					predict_sequence();
 				}
