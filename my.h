@@ -10,6 +10,7 @@ enum Layer {
 #ifndef NO_JAPANESE
 	L_KANA,
 #endif
+	L_NUM_SIGN,
 	L_FN,
 };
 

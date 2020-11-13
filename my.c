@@ -1,6 +1,10 @@
 #include "ergodox_ez.h"
 #include "util_user.h"
 #include "action.h"
+
+// To use japanese input specific keys on Windows,
+// OS's layout should be jis layout
+// even I prefer us layout for symbol keys.
 #include "keymap_jp.h"
 
 #include "my.h"
@@ -12,6 +16,7 @@
 #endif
 
 #define SFT_LT(kc) LT(L_SHIFT, kc)
+#define NUM_SIGN_T(kc) LT(L_NUM_SIGN, kc)
 #define FN_T(kc) LT(L_FN, kc)
 
 // click (left, middle, right)
@@ -63,29 +68,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		return true;
 	}
 #endif
-// To use japanese input specific keys on Windows,
-// OS's layout should be jis layout.
-// But I prefer us layout for symbol keys.
-// So translate symbols from us layout to jis layout.
+// recover shift that truncated in MOD_T() macro
 	case RGUI_T(JP_QUOT):
+	case LCTL_T(JP_ASTR):
+	case LGUI_T(JP_GRV):
 		// use default process for mod
 		if(record->tap.count > 0) {
+			uint16_t keycode_8 = keycode & 0xFF;
 			if(event.pressed) {
 				if(!is_default_layer_kana()) {
 					add_mods(MOD_LSFT);
-					register_code(KC_7);
+					register_code(keycode_8);
 				}
 				else {
-					return process_ime(JP_QUOT, record);
+					return process_ime(LSFT(keycode_8), record);
 				}
 			}
 			else {
 				if(!is_default_layer_kana()) {
-					unregister_code(KC_7);
+					unregister_code(keycode_8);
 					del_mods(MOD_LSFT);
 				}
 				else {
-					return process_ime(JP_QUOT, record);
+					return process_ime(LSFT(keycode_8), record);
 				}
 			}
 			return false;
@@ -192,25 +197,25 @@ uint16_t additional_kana_chord(uint32_t kana_chord) {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[L_BASE] = LAYOUT_ergodox(
 		// left hand
-		KC_WH_L, KC_WH_R, LGUI_T(KC_SCLN), LALT_T(KC_COMM), LCTL_T(KC_ESC), KC_Z, KC_INS,
+		KC_WH_L, KC_WH_R, LGUI_T(KC_SCLN), LALT_T(KC_COMM), LCTL_T(KC_ESC), FN_T(KC_Z), KC_INS,
 		KC_WH_U, KC_WH_D, KC_K, KC_I, KC_N, KC_F, KC_DEL,
-		KC_PGUP, KC_PGDN, KC_Y, KC_E, KC_S, KC_M,
-		KC_2, KC_1, KC_J, KC_U, KC_H, KC_P, KC_BSPC,
-		KC_5, KC_4, KC_3, JP_LPRN, JP_RPRN,
+		KC_RCLK, KC_LCLK, KC_Y, KC_E, KC_S, KC_M,
+		KC_F5, KC_MCLK, KC_J, KC_U, KC_H, KC_P, KC_BSPC,
+		KC_WBAK, KC_WFWD, KC_NO, JP_LPRN, JP_RPRN,
 		// thumb
-		KC_RCLK, KC_LCLK,
-		KC_MCLK,
-		LSFT_T(KC_SPC), FN_T(KC_ENT), S(KC_CAPS),
+		KC_NO, KC_NO,
+		KC_NO,
+		LSFT_T(KC_SPC), NUM_SIGN_T(KC_ENT), S(KC_CAPS),
 		// right hand
 		CLEAR, KC_Q, RCTL_T(KC_TAB), RALT_T(KC_DOT), RGUI_T(JP_QUOT), KC_HOME, KC_END,
 		KC_SLSH, KC_W, KC_R, KC_O, KC_V, KC_LEFT, KC_RGHT,
 		KC_C, KC_T, KC_A, KC_B, KC_DOWN, KC_UP,
-		JP_DQT, KC_G, KC_L, KC_D, KC_X, KC_9, KC_0,
-		JP_MINS, JP_UNDS, KC_6, KC_7, KC_8,
+		JP_DQT, KC_G, KC_L, KC_D, KC_X, KC_PGDN, KC_PGUP,
+		JP_MINS, JP_UNDS, KC_NO, KC_NO, CLEAR,
 		// thumb
-		KC_WBAK, KC_WFWD,
-		KC_WSCH,
-		IME, FN_T(KC_ENT), RSFT_T(KC_SPC)
+		KC_NO, KC_NO,
+		KC_NO,
+		IME, NUM_SIGN_T(KC_ENT), RSFT_T(KC_SPC)
 	),
 #ifdef ENABLE_STABLE_LAYER
 	[L_STABLE] = LAYOUT_ergodox(
@@ -260,27 +265,49 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_TRNS, KC_TRNS, KC_TRNS
 	),
 #endif
+	[L_NUM_SIGN] = LAYOUT_ergodox(
+		// left hand
+		KC_NO, KC_NO, LGUI_T(JP_GRV), LALT_T(JP_COLN), LCTL_T(JP_ASTR), KC_TRNS, KC_NO,
+		KC_NO, KC_SLCK, JP_BSLS, JP_QUES, JP_PLUS, JP_AT, KC_TRNS,
+		KC_NO, KC_NO, JP_TILD, JP_EXLM, JP_EQL, JP_PIPE,
+		KC_NO, KC_NO, JP_CIRC, JP_LT, JP_GT, JP_AMPR, KC_TRNS,
+		KC_NO, KC_NO, KC_NO, JP_LBRC, JP_RBRC,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
+		// right hand
+		KC_TRNS, KC_NO, RCTL_T(KC_7), RALT_T(KC_8), RGUI_T(KC_9), KC_TRNS, KC_TRNS,
+		KC_TRNS, JP_DLR, KC_4, KC_5, KC_6, KC_TRNS, KC_TRNS,
+		JP_HASH, KC_1, KC_2, KC_3, KC_TRNS, KC_TRNS,
+		KC_TRNS, JP_PERC, KC_0, KC_COMM, KC_DOT, KC_TRNS, KC_TRNS,
+		JP_LCBR, JP_RCBR, KC_NO, KC_NO, KC_NO,
+		// thumb
+		KC_TRNS, KC_TRNS,
+		KC_TRNS,
+		PRACTICE_MODE, KC_TRNS, KC_TRNS
+	),
 	[L_FN] = LAYOUT_ergodox(
 		// left hand
-		KC_NO, KC_NO, KC_LGUI, KC_LALT, KC_LCTL, KC_NO, KC_NO,
-		KC_BRIU, KC_BRID, KC_SLCK, JP_COLN, JP_QUES, JP_AT, KC_TRNS,
-		KC_F12, KC_F11, KC_APP, JP_LBRC, JP_RBRC, JP_HASH,
-		KC_F2, KC_F1, KC_NO, JP_LCBR, JP_RCBR, JP_DLR, KC_TRNS,
-		KC_F5, KC_F4, KC_F3, JP_GRV, JP_BSLS,
+		KC_NO, KC_NO, KC_LGUI, KC_LALT, KC_LCTL, KC_TRNS, KC_NO,
+		KC_NO, KC_SLCK, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS,
+		KC_NO, KC_NO, KC_NO, KC_NO, KC_PSCR, KC_NO,
+		KC_APP, KC_NO, KC_NO, KC_NO, KC_NO, KC_PAUS, KC_TRNS,
+		KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		KC_LSFT, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS,
 		// right hand
-		KC_TRNS, KC_NO, KC_RCTL, KC_RALT, KC_RGUI, KC_MPRV, KC_MNXT,
-		KC_TRNS, JP_PIPE, JP_EXLM, JP_ASTR, KC_PAUS, KC_MUTE, KC_MPLY,
-		JP_AMPR, JP_EQL, JP_PLUS, KC_PSCR, KC_VOLD, KC_VOLU,
-		KC_TRNS, JP_CIRC, JP_LT, JP_GT, KC_NO, KC_F9, KC_F10,
-		JP_PERC, JP_TILD, KC_F6, KC_F7, KC_F8,
+		KC_TRNS, KC_NO, RCTL_T(KC_F7), RALT_T(KC_F8), RGUI_T(KC_F9), KC_MPRV, KC_MNXT,
+		KC_TRNS, KC_NO, KC_F4, KC_F5, KC_F6, KC_MUTE, KC_MPLY,
+		KC_NO, KC_F1, KC_F2, KC_F3, KC_VOLD, KC_VOLU,
+		KC_TRNS, KC_NO, KC_F10, KC_F11, KC_F12, KC_BRID, KC_BRIU,
+		KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
 		// thumb
 		KC_TRNS, KC_TRNS,
 		KC_TRNS,
-		PRACTICE_MODE, KC_TRNS, KC_RSFT
+		PRACTICE_MODE, KC_TRNS, KC_TRNS
 	),
 };
 
