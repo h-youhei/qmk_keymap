@@ -49,14 +49,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		}
 		return false;
 #ifndef NO_JAPANESE
-	case LALT_T(KC_COMM):
-	case RALT_T(KC_DOT):
 	case RCTL_T(KC_TAB):
 	case LCTL_T(KC_ESC):
+	case LALT_T(KC_COMM):
+	case RALT_T(KC_DOT):
 	case LGUI_T(KC_SCLN):
 	case LSFT_T(KC_SPC):
 	case RSFT_T(KC_SPC):
-	case FN_T(KC_ENT):
+	case NUM_SIGN_T(KC_ENT):
+	case FN_T(KC_Z):
+	case FN_T(KC_Q):
+	case LCTL_T(JP_AT):
+	case RCTL_T(KC_7):
+	case LALT_T(JP_COLN):
+	case RALT_T(KC_8):
+	case RGUI_T(KC_9):
 	{
 		uint16_t keycode_8 = keycode & 0xFF;
 		// use default process other than KANA layer
@@ -70,7 +77,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
 // recover shift that truncated in MOD_T() macro
 	case RGUI_T(JP_QUOT):
-	case LCTL_T(JP_ASTR):
 	case LGUI_T(JP_GRV):
 		// use default process for mod
 		if(record->tap.count > 0) {
@@ -267,10 +273,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 #endif
 	[L_NUM_SIGN] = LAYOUT_ergodox(
 		// left hand
-		KC_NO, KC_NO, LGUI_T(JP_GRV), LALT_T(JP_COLN), LCTL_T(JP_ASTR), KC_TRNS, KC_NO,
-		KC_NO, KC_SLCK, JP_BSLS, JP_QUES, JP_PLUS, JP_AT, KC_TRNS,
-		KC_NO, KC_NO, JP_TILD, JP_EXLM, JP_EQL, JP_PIPE,
-		KC_NO, KC_NO, JP_CIRC, JP_LT, JP_GT, JP_AMPR, KC_TRNS,
+		KC_NO, KC_NO, LGUI_T(JP_GRV), LALT_T(JP_COLN), LCTL_T(JP_AT), KC_TRNS, KC_NO,
+		KC_NO, KC_SLCK, JP_BSLS, JP_QUES, JP_PLUS, JP_ASTR, KC_TRNS,
+		KC_NO, KC_NO, JP_TILD, JP_EXLM, JP_EQL, JP_AMPR,
+		KC_NO, KC_NO, JP_CIRC, JP_LT, JP_GT, JP_PIPE, KC_TRNS,
 		KC_NO, KC_NO, KC_NO, JP_LBRC, JP_RBRC,
 		// thumb
 		KC_TRNS, KC_TRNS,
