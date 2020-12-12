@@ -39,12 +39,12 @@ enum im_state {
 	IM_STATE_PREDICT,
 };
 
+#define HIRAGANA KC_F6
+#define KATAKANA KC_F7
+
 enum im_code {
 	IME = IME_RANGE,
 	PRACTICE_MODE,
-	IM_HIRAGANA,
-	IM_KATAKANA,
-	IM_COMMIT,
 };
 
 // You can change behavior when character is typed

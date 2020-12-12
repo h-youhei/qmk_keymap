@@ -450,7 +450,7 @@ bool process_kana(uint16_t keycode, keyrecord_t *record) {
 // false: The process is completed by this function
 bool process_ime(uint16_t keycode, keyrecord_t *record) {
 	keyevent_t event = record->event;
-	if(keycode == IME) {
+	if(keycode == JP_ZHTG) {
 		if(!event.pressed) return false;
 		if(is_default_layer_kana()) {
 			// IME: off to on, practice: on to off
@@ -553,7 +553,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 	}
 	// put here if mods handling is needed for the keycode
 	switch(keycode) {
-	case IM_HIRAGANA:
+	case HIRAGANA:
 	// PreComposition: turn on hiragana mode
 	// HiraganaDirect: turn off hiragana mode
 	// KatakanaDirect: turn on hiragana mode
@@ -594,7 +594,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 			break;
 		}
 		return false;
-	case IM_KATAKANA:
+	case KATAKANA:
 	// PreComposition: turn on katakana mode
 	// HiraganaDirect: turn on katakana mode
 	// KatakanaDirect: turn off katakana mode
