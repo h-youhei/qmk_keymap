@@ -378,16 +378,16 @@ static bool process_ascii(uint16_t keycode, keyrecord_t *record) {
 
 bool process_capital_letter(uint16_t keycode, keyrecord_t *record) {
 	keyevent_t event = record->event;
-	if(!event.pressed) return false;
 	uint16_t keycode_base = keymap_key_to_keycode(0, event.key);
 	// continue other than shift
 	if(!is_shifting_but_other_mod()) {
+		if(!event.pressed) return false;
 		tap_code(keycode_base);
 		return false;
 	}
 	// uppercase character
 	if(in_range(keycode_base, KC_A, KC_Z)) {
-		if(!record->event.pressed) return false;
+		if(!event.pressed) return false;
 		commit_ascii(keycode_base);
 		return false;
 	}
