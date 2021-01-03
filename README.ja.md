@@ -1,13 +1,19 @@
 # qmk firmware用キーマップ
 [English](README.md)|日本語
 
+[ブログ記事][blog]により詳しく書いています。
+
 ## インストール
 1. [qmk_firmware][qmk] をクローン
 2. このリポジトリを `qmk_firmware/layouts/community/ergodox` にクローン
-3. `sh write.sh`を実行
+3. QMKのビルド環境を構築する([公式ドキュメント](https://docs.qmk.fm/#/ja/newbs_getting_started?id=set-up-your-environment))
+4. ビルドしてキーボードに書き込む([公式ドキュメント](https://docs.qmk.fm/#/ja/newbs_building_firmware?id=build-your-firmware))
 
-## 英数面
+## 英語
 ![ascii layout](img/ascii-layout.png)
+
+## 数字、記号レイヤー
+![num sign layout](img/num-sign-layout.png)
 
 ## Fnレイヤー
 ![fn layout](img/fn-layout.png)
@@ -41,4 +47,5 @@ Pauseキーに割り当てています。
 |に    |マ    |      |        |          |
 |て    |ラ    |      |ティ    |ディ      |
 
-[qmk]: https://github.com/qmk/qmk_firmware
+[qmk]:https://github.com/qmk/qmk_firmware
+[blog]:https://hkmtyh.com/computer/keyboard/layout/tyoki-chord/

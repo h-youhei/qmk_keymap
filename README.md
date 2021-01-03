@@ -4,64 +4,18 @@ English|[日本語](README.ja.md)
 ## Install
 1. clone [qmk_firmware][qmk]
 2. clone this repository in `qmk_firmware/layouts/community/ergodox`
-3. run `sh write.sh`
+3. setup qmk environment ([official doc](https://docs.qmk.fm/#/newbs_getting_started?id=set-up-your-environment))
+3. then build and flash ([official doc](https://docs.qmk.fm/#/newbs_building_firmware?id=build-your-firmware))
 
 ## Base
 ![ascii layout](img/ascii-layout.png)
-<!--
-```
- ------------------------------                     ------------------------------
-| Prnt | $ | % | ! | @ | # |   |                   | { | * | ( | ) | ^ | & |Clear |
-|  Scr | 4 | 5 | 1 | 2 | 3 |Ins|                   | { | 8 | 9 | 0 | 6 | 7 |      |
-|      | Fn|Win|Alt|Ctl|   |   |                   |   |   |Ctl|Alt|Win|Fn |      |
-|------------------------------|                   |------------------------------|
-|   |  | Q | V | R | N | B | + |                   | } | > | U | O | _ | " |  ~   |
-|   \  |   |   |   |   |   | = |                   | ] | . |   |   | - | ' |  `   |
-|--------------------------|   |                   |   |--------------------------|
-|   ?  | W | F | T | S | L |___|                   |___| < | I | A | P | G |  :   |
-|   /  |   |   |   |   |   |   |                   |   | , |   |   |   |   |  ;   |
-|--------------------------|BS |                   |Del|--------------------------|
-| Caps | J | X | C | H | M |   |                   |   | Y | E | D | K | Z | Caps |
-|      |   |   |   |   |   |   | -------   ------- |   |   |   |   |   |   |      |
-------------------------------- | R | L | |Pg |Pg | ------------------------------
-   |   |   |Ho |Up |Dn |        |Btn|Btn| | Dn| Up|        |Le |Ri |End|   |   |
-   |   |   | me|   |   |     -----------| |-----------     | ft|ght|   |   |   |
-    -------------------     |Sft|   | M | |Ba |   |Sft|     -------------------
-                            |   |   |Btn| | ck|   |   |
-                            | S | E |---| |---| T | S |
-                            | p | n |Esc| |IME| a | p |
-                            | c | t |   | |TGL| b | c |
-                             -----------   -----------
-```
--->
+
+## Num,Sign Layer
+![num sign layout](img/num-sign-layout.png)
 
 ## Fn layer
 ![fn-layout](img/fn-layout.png)
-<!--
-```
- ------------------------------                     ------------------------------
-|      |   |   |   |   |   |   |                   |   |   |   |   |   |   |      |
-|      |F4 |F5 |F1 |F2 |F3 |   |                   |   |F8 |F9 |F10|F6 |F7 |      |
-|------------------------------|                   |------------------------------|
-|      |   |   |   |   |   |   |                   |   |   |   |   |   |   |      |
-|      |   |   |F11|F12|   |   |                   |   |   |   |   |   |   |      |
-|--------------------------|   |                   |   |--------------------------|
-|      |   |Mu |Vol|Vol|Ply|___|                   |___|   |   |Scr|Pau|   |      |
-|      |   | te| Dn| Up|Stp|   |                   |   |   |App|Lck| se|   |      |
-|--------------------------|   |                   |   |--------------------------|
-|      |   |   |   |   |   |   |                   |   |   |   |   |   |   |      |
-|      |   |   |   |   |   |   | -------   ------- |   |   |   |   |   |   |      |
-------------------------------- |   |   | |   |   | ------------------------------
-   |   |   |   |   |   |        |   |   | |   |   |        |   |   |   |   |   |
-   |   |   |   |   |   |     -----------| |-----------     |   |   |   |   |   |
-   |   |   |Win|Ctl|Alt|    |Sft|   |   | |   |   |Sft|    |Alt|Ctl|Win|   |   |
-    -------------------     |   |   |   | |   |   |   |     -------------------
-                            | S | E |---| |---| T | S |
-                            | p | n |   | |   | a | p |
-                            | c | t |   | |   | b | c |
-                             -----------   -----------
-```
--->
+
 <!--
 ## Simultaneous Modifier
 simultaneous tapping version of MOD-TAP.
