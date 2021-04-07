@@ -13,7 +13,8 @@ bool is_practice_mode(void);
 bool is_default_layer_kana(void);
 void reset_ime(void);
 
-void detect_ime_change(uint8_t usb_led);
+void on_im_off(void);
+void on_im_on(void);
 
 // return value
 // true: continue processing

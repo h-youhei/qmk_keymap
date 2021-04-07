@@ -24,6 +24,11 @@ enum user_code {
 #endif
 };
 
+enum raw_hid {
+	id_im_off = 0x01,
+	id_im_on = 0x02,
+};
+
 #ifndef NO_JAPANESE
 #define BIT_NEIGHBOR_VOWEL_A BIT_VOWEL_YA
 #define BIT_NEIGHBOR_VOWEL_I BIT_VOWEL_E

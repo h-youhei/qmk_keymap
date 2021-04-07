@@ -10,6 +10,7 @@
 #include "my.h"
 
 #ifndef NO_JAPANESE
+#include "raw_hid.h"
 #include "kana.h"
 #include "kana_chord.h"
 #include "ime.h"
@@ -114,15 +115,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void led_set_user(uint8_t usb_led) {
 	ergodox_led_all_set(LED_BRIGHTNESS_LO);
 
-#ifndef NO_JAPANESE
-	detect_ime_change(usb_led);
-#endif
-
 	if(biton32(default_layer_state) != L_KANA) {
 		if(IS_LED_ON(usb_led, USB_LED_CAPS_LOCK)) ergodox_right_led_2_on();
 		else ergodox_right_led_2_off();
 	}
 
+	// if(IS_LED_ON(usb_led, USB_LED_NUM_LOCK)) ergodox_right_led_1_on();
+	// else ergodox_right_led_1_off();
 	// if(IS_LED_ON(usb_led, USB_LED_SCROLL_LOCK)) ergodox_right_led_3_on();
 	// else ergodox_right_led_3_off();
 }
@@ -133,6 +132,20 @@ layer_state_t default_layer_state_set_user(layer_state_t state) {
 	uint8_t layer = biton32(state);
 // 	if(layer == L_STABLE) ergodox_right_led_1_on();
 	return state;
+}
+#endif
+
+#ifndef NO_JAPANESE
+void raw_hid_receive(uint8_t *data, uint8_t length) {
+	uint8_t *command_id = &(data[0]);
+	switch(*command_id) {
+		case id_im_off:
+			on_im_off();
+			break;
+		case id_im_on:
+			on_im_on();
+			break;
+	}
 }
 #endif
 

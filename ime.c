@@ -14,8 +14,6 @@ static bool is_commit_mode(void);
 static void set_im_state(uint8_t state);
 static void handle_cursor(uint16_t keycode);
 static void reset_cursor(void);
-static void numlock_on(void);
-static void numlock_off(void);
 static void capslock_off(void);
 static void convert_sequence(void);
 static void predict_sequence(void);
@@ -49,7 +47,7 @@ void reset_ime() {
 	im_state = IM_STATE_PRECOMPOSITION;
 	_is_practice_mode = false;
 	reset_cursor();
-	numlock_off();
+	on_im_off();
 	im_state_set_user(im_state);
 }
 
@@ -103,18 +101,6 @@ bool is_default_layer_kana() {
 	return (biton32(default_layer_state) == LAYER_KANA);
 }
 
-// TODO: use raw_hid to detect ime state
-static void numlock_on() {
-	if(IS_HOST_LED_OFF(USB_LED_NUM_LOCK)) {
-		tap_code(KC_NLCK);
-	}
-}
-static void numlock_off() {
-	if(IS_HOST_LED_ON(USB_LED_NUM_LOCK)) {
-		tap_code(KC_NLCK);
-	}
-}
-
 static void capslock_off() {
 	if(IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
 		register_code(KC_LSFT);
@@ -123,28 +109,24 @@ static void capslock_off() {
 	}
 }
 
-// TODO: use raw_hid to detect ime state
-void detect_ime_change(uint8_t usb_led) {
-	// use Num_Lock to recognize that
-	// modal editor change ime state
-	if(IS_LED_ON(usb_led, USB_LED_NUM_LOCK)) {
-		default_layer_set(1UL << LAYER_KANA);
-	}
-	else {
-		default_layer_set(1UL << L_BASE);
-		if(!_is_practice_mode) {
-			switch(im_state) {
-			case IM_STATE_CONVERT:
-			case IM_STATE_COMPOSITION:
-			case IM_STATE_PREDICT:
-				im_state = IM_STATE_PRECOMPOSITION;
-				break;
-			default:
-				break;
-			}
-			reset_cursor();
+void on_im_off() {
+	default_layer_set(1UL << L_BASE);
+	if(!_is_practice_mode) {
+		switch(im_state) {
+		case IM_STATE_CONVERT:
+		case IM_STATE_COMPOSITION:
+		case IM_STATE_PREDICT:
+			im_state = IM_STATE_PRECOMPOSITION;
+			break;
+		default:
+			break;
 		}
+		reset_cursor();
 	}
+	im_state_set_user(im_state);
+}
+void on_im_on() {
+	default_layer_set(1UL << LAYER_KANA);
 	im_state_set_user(im_state);
 }
 
@@ -465,15 +447,13 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 				if(im_state == IM_STATE_CONVERT) {
 					tap_code(KC_ESC);
 				}
-				// TODO: use raw_hid to detect ime state
-				numlock_off();
+				on_im_off();
 				reset_cursor();
 			}
 		}
 		// IME: off to on, practice: off
 		else {
-			// TODO: use raw_hid to detect ime state
-			numlock_on();
+			on_im_on();
 			capslock_off();
 		}
 		tap_code(JP_ZHTG);
@@ -484,8 +464,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		if(is_default_layer_kana()) {
 			// IME: off, practice: on to off
 			if(_is_practice_mode) {
-				// TODO: use raw_hid to detect ime state
-				numlock_off();
+				on_im_off();
 				// should be after numlock_off
 				_is_practice_mode = false;
 			}
@@ -501,7 +480,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		// IME: off, practice: off to on
 		else {
 			_is_practice_mode = true;
-			numlock_on();
+			on_im_on();
 			capslock_off();
 		}
 		return false;
@@ -894,7 +873,7 @@ bool process_ime(uint16_t keycode, keyrecord_t *record) {
 		if(im_state == IM_STATE_CONVERT) {
 			tap_code(KC_ESC);
 		}
-		numlock_off();
+		on_im_off();
 		reset_cursor();
 		tap_code(JP_ZHTG);
 		register_code(KC_LSFT);

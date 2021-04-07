@@ -1,7 +1,4 @@
-#ifndef CONFIG_USER_H
-#define CONFIG_USER_H
-
-#include QMK_KEYBOARD_CONFIG_H
+#pragma once
 
 #undef TAPPING_TERM
 #define TAPPING_TERM 250
@@ -24,4 +21,3 @@
 // #define MK_W_INTERVAL_1 70
 
 #define COMMIT_AT_PUNCTUATION
-#endif

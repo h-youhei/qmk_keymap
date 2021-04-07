@@ -1,5 +1,4 @@
-#ifndef kana_h_INCLUDED
-#define kana_h_INCLUDED
+#pragma once
 
 #include "action.h" //keyrecord_t
 #include "my.h" //KANA_RANGE
@@ -211,5 +210,3 @@ enum kana_code {
 #define KANA_ZYO KANA_JO
 #define KANA_JI KANA_ZI
 #define KANA_FU KANA_HU
-
-#endif // kana_h_INCLUDED
